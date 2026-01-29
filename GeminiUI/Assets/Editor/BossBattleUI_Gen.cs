@@ -79,6 +79,12 @@ public class BossBattleUI_Gen
     {
         GameObject root = new GameObject("BattleListItem");
         root.AddComponent<RectTransform>();
+        
+        // Add LayoutElement for Auto Layout
+        var le = root.AddComponent<LayoutElement>();
+        le.preferredHeight = 80;
+        le.minHeight = 80;
+
         var script = root.AddComponent<BattleListItem>();
         var img = root.AddComponent<Image>();
         img.color = new Color(0.2f, 0.2f, 0.2f); // Dark BG
@@ -378,8 +384,8 @@ public class BossBattleUI_Gen
         refRect.anchorMin = new Vector2(1, 0.5f);
         refRect.anchorMax = new Vector2(1, 0.5f);
         refRect.pivot = new Vector2(1, 0.5f);
-        refRect.anchoredPosition = new Vector2(-180, 0);
-        refRect.sizeDelta = new Vector2(100, 40);
+        refRect.anchoredPosition = new Vector2(-250, 0); // Moved left to make room
+        refRect.sizeDelta = new Vector2(160, 50); // Bigger (100x40 -> 160x50)
         refBtnObj.AddComponent<Image>().color = Color.blue;
         var refBtn = refBtnObj.AddComponent<Button>();
         script.refreshButton = refBtn;
@@ -399,7 +405,7 @@ public class BossBattleUI_Gen
         crtRect.anchorMax = new Vector2(1, 0.5f);
         crtRect.pivot = new Vector2(1, 0.5f);
         crtRect.anchoredPosition = new Vector2(-20, 0);
-        crtRect.sizeDelta = new Vector2(150, 40);
+        crtRect.sizeDelta = new Vector2(220, 50); // Bigger (150x40 -> 220x50)
         crtBtnObj.AddComponent<Image>().color = new Color(0.8f, 0.4f, 0);
         var crtBtn = crtBtnObj.AddComponent<Button>();
         script.createBattleButton = crtBtn;
@@ -439,7 +445,8 @@ public class BossBattleUI_Gen
         contentRect.sizeDelta = new Vector2(0, 0);
         
         var vlg = content.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlHeight = false;
+        vlg.childControlHeight = false; // Let items define their height (80)
+        vlg.childForceExpandHeight = false; // Don't force them to fill empty space
         vlg.childControlWidth = true;
         vlg.spacing = 5;
         vlg.padding = new RectOffset(5, 5, 5, 5);
