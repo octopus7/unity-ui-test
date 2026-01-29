@@ -58,12 +58,17 @@ public class LobbyUI : MonoBehaviour
             foreach (var battle in response.Battles)
             {
                 BattleListItem item = Instantiate(listItemPrefab, listContent);
+                item.transform.localScale = Vector3.one; // Ensure scale is correct
+                item.transform.localPosition = Vector3.zero; // Reset pos
                 item.Setup(battle, _currentUser.UserId, OnParticipateClicked);
             }
+            
+            // Force Layout Rebuild
+            LayoutRebuilder.ForceRebuildLayoutImmediate(listContent);
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Failed to load list: {e.Message}");
+            Debug.LogError($"Failed to load list: {e.Message}\n{e.StackTrace}");
         }
         finally
         {

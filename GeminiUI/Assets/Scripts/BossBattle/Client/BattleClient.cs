@@ -69,6 +69,7 @@ public class BattleClient : MonoBehaviour
             }
 
             string responseText = req.downloadHandler.text;
+            Debug.Log($"[BattleClient] Response from {endpoint}: {responseText}"); // Added Logging
             try 
             {
                 return JsonUtility.FromJson<T>(responseText);
@@ -99,7 +100,8 @@ public class BattleClient : MonoBehaviour
             }
 
             string responseText = req.downloadHandler.text;
-             try 
+            Debug.Log($"[BattleClient] Response from {endpoint}: {responseText}"); // Added Logging
+            try 
             {
                 return JsonUtility.FromJson<T>(responseText);
             }
