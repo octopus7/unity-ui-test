@@ -1,0 +1,58 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class LoginPopup : MonoBehaviour
+{
+    public TMP_InputField userIdInput;
+    public Button startButton;
+
+    public LobbyUI lobbyUI; // Reference to Lobby to switch
+    
+    void Start()
+    {
+        // Load saved ID
+        string savedId = PlayerPrefs.GetString("UserId", "");
+        userIdInput.text = savedId;
+
+        startButton.onClick.AddListener(OnStartClicked);
+    }
+
+    async void OnStartClicked()
+    {
+        string userId = userIdInput.text;
+        if (string.IsNullOrEmpty(userId)) return;
+
+        startButton.interactable = false;
+
+        try
+        {
+            UserData user = await BattleClient.Instance.Login(userId);
+            
+            // Save ID
+            PlayerPrefs.SetString("UserId", user.UserId);
+            PlayerPrefs.Save();
+
+            Debug.Log($"Logged in as {user.UserId} with {user.Gold} Gold");
+
+            // Close Login, Open Lobby
+            gameObject.SetActive(false);
+            if(lobbyUI != null)
+            {
+                lobbyUI.Initialize(user);
+                lobbyUI.gameObject.SetActive(true);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Login Failed: {e.Message}");
+            // Show error toast?
+        }
+        finally
+        {
+            startButton.interactable = true;
+        }
+    }
+}
