@@ -1,0 +1,15 @@
+d:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.GeneratedMSBuildEditorConfig.editorconfig
+d:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.AssemblyInfoInputs.cache
+d:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.AssemblyInfo.cs
+d:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.csproj.CoreCompileInputs.cache
+d:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.sourcelink.json
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\bin\Debug\net10.0\UnityMCP.Server.exe
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\bin\Debug\net10.0\UnityMCP.Server.deps.json
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\bin\Debug\net10.0\UnityMCP.Server.runtimeconfig.json
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\bin\Debug\net10.0\UnityMCP.Server.dll
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\bin\Debug\net10.0\UnityMCP.Server.pdb
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.dll
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\refint\UnityMCP.Server.dll
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.pdb
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\UnityMCP.Server.genruntimeconfig.cache
+D:\github\unity-ui-test\GeminiUI\Tools\UnityMCP-G3\UnityMCP.Server\obj\Debug\net10.0\ref\UnityMCP.Server.dll

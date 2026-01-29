@@ -22,7 +22,7 @@ graph TD
 
 ### 1. MCP Server (C# Console App)
 - **역할**: MCP 프로토콜의 End-point. AI의 요청을 받아 Unity가 이해할 수 있는 HTTP 요청으로 변환합니다.
-- **기술 스택**: .NET 8 (or compatible), Standard Input/Output integration.
+- **기술 스택**: .NET 10, Standard Input/Output integration.
 - **주요 기능**:
     - `CallTool`: 요청된 Tool을 파싱하고 Unity API 서버로 전달.
     - `Resources`: Unity 프로젝트 상태(계층 구조 등)를 읽어 반환.

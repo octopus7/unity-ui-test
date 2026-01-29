@@ -1,0 +1,1 @@
+using UnityEngine; using UnityEngine.UI; public class TestScript : MonoBehaviour { public Text messageText; void Start() { if(messageText) messageText.text = "Hello Job Queue!"; } }
