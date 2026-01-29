@@ -183,7 +183,11 @@ public class BossBattleUI_Gen
         btnRect.pivot = new Vector2(1, 0.5f);
         btnRect.anchoredPosition = new Vector2(-10, 0);
         btnRect.sizeDelta = new Vector2(100, 50);
-        btnObj.AddComponent<Image>().color = Color.green;
+        var btnImg = btnObj.AddComponent<Image>();
+        btnImg.color = Color.green;
+        btnImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+        btnImg.type = Image.Type.Sliced;
+        btnImg.pixelsPerUnitMultiplier = 0.33f; // 3x Rounding
         var btn = btnObj.AddComponent<Button>();
         script.participateButton = btn;
 
