@@ -5,6 +5,7 @@ public class PopupController : MonoBehaviour
 {
     [Header("Prefab Reference")]
     [SerializeField] private TestPopup popupPrefab;
+    [SerializeField] private TwinImagePopup twinImagePopupPrefab; // New field
     [SerializeField] private Canvas mainCanvas; // Canvas to spawn popup in
 
     [Header("Buttons")]
@@ -21,7 +22,7 @@ public class PopupController : MonoBehaviour
             button2.onClick.AddListener(() => ShowPopup("두 번째 팝업입니다.\n경고 메시지 예시!", Color.yellow));
 
         if (button3 != null)
-            button3.onClick.AddListener(() => ShowPopup("세 번째 팝업입니다.\n이미지도 바꿀 수 있습니다."));
+            button3.onClick.AddListener(ShowTwinImagePopup); // Changed to use new method
 
         CheckAndCreateEventSystem();
     }
@@ -71,6 +72,31 @@ public class PopupController : MonoBehaviour
         popup.transform.localPosition = Vector3.zero;
         
         // Ensure it covers full screen if it's stretch
+        RectTransform rt = popup.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+    }
+
+    private void ShowTwinImagePopup()
+    {
+        if (twinImagePopupPrefab == null)
+        {
+            Debug.LogError("TwinImagePopup Prefab is not assigned!");
+            return;
+        }
+
+        TwinImagePopup popup = Instantiate(twinImagePopupPrefab, mainCanvas != null ? mainCanvas.transform : transform);
+        
+        // Example: Set placeholder sprites or colors if no sprite logic is planned yet.
+        // For now, the user just asked to make it receive 2 images.
+        // We'll leave it as is or maybe modify colors to prove it's different.
+        
+        popup.transform.localScale = Vector3.one;
+        popup.transform.localPosition = Vector3.zero;
+
         RectTransform rt = popup.GetComponent<RectTransform>();
         if (rt != null)
         {

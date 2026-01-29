@@ -66,8 +66,9 @@ namespace UnityMCP.Editor
             
             if (!string.IsNullOrEmpty(args.parentName))
             {
-                var found = parent.Find(args.parentName);
+                var found = FindDeep(parent, args.parentName);
                 if (found != null) parent = found;
+                else Debug.LogWarning($"[UnityMCP] Parent '{args.parentName}' not found in prefab. Defaulting to root.");
             }
             
             GameObject newObj = new GameObject(args.name);
@@ -109,16 +110,80 @@ namespace UnityMCP.Editor
                 rect.anchorMax = Vector2.one;
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
+
+                // Add LayoutElement for Auto Layout
+                var le = newObj.AddComponent<LayoutElement>();
+                le.minWidth = 100;
+                le.minHeight = 50;
+                le.preferredHeight = 50;
             }
             else if (args.type == "Image")
             {
                  newObj.AddComponent<Image>();
+            }
+            else if (args.type == "HorizontalLayout")
+            {
+                var rect = newObj.AddComponent<RectTransform>();
+                
+                // If parent has VerticalLayoutGroup, let it control the size.
+                // Otherwise fill parent.
+                // Simple logic: Always add LayoutElement to be flexible
+                var le = newObj.AddComponent<LayoutElement>();
+                le.flexibleWidth = 1;
+                le.flexibleHeight = 1;
+
+                // Default anchors (will be overridden if parent is layout group)
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+
+                var layout = newObj.AddComponent<HorizontalLayoutGroup>();
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = true;
+                layout.spacing = 10;
+            }
+            else if (args.type == "CenteredWindow")
+            {
+                var img = newObj.AddComponent<Image>();
+                img.color = new Color(0.2f, 0.2f, 0.2f, 1f); // Dark background
+
+                var rect = newObj.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(800, 600); // Fixed Size Window
+
+                var layout = newObj.AddComponent<VerticalLayoutGroup>();
+                layout.childControlWidth = true; // Use Width of children to fill window
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = false; // Don't force children to equal height
+                layout.spacing = 20;
+                layout.padding = new RectOffset(20, 20, 20, 20);
             }
 
             PrefabUtility.SaveAsPrefabAsset(prefabContents, args.prefabPath);
             PrefabUtility.UnloadPrefabContents(prefabContents);
             
             return new { status = "success", created = args.name };
+        }
+
+        private static Transform FindDeep(Transform parent, string name)
+        {
+            var result = parent.Find(name);
+            if (result != null)
+                return result;
+
+            foreach (Transform child in parent)
+            {
+                result = FindDeep(child, name);
+                if (result != null)
+                    return result;
+            }
+            return null;
         }
     }
 }
