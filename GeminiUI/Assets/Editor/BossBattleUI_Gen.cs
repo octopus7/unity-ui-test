@@ -12,7 +12,7 @@ public class BossBattleUI_Gen
         EditorApplication.delayCall += GenerateAll;
     }
 
-    [MenuItem("GeminiUI/Generate All BossBattle UI")]
+    [MenuItem("GeminiUI/Generate All BossBattle UI", false, 20)]
     public static void ForceGenerateAll()
     {
         // Reset flag to force regeneration
@@ -119,7 +119,7 @@ public class BossBattleUI_Gen
         hostObj.transform.SetParent(root.transform, false);
         var hostRect = hostObj.AddComponent<RectTransform>();
         hostRect.anchoredPosition = new Vector2(50, 15);
-        hostRect.sizeDelta = new Vector2(300, 30); // Explicit Size
+        hostRect.sizeDelta = new Vector2(200, 30); // Reduced width to avoid overlap
         hostRect.anchorMin = new Vector2(0, 0.5f); // Left align relative to parent
         hostRect.anchorMax = new Vector2(0, 0.5f);
         hostRect.pivot = new Vector2(0, 0.5f);
@@ -136,7 +136,7 @@ public class BossBattleUI_Gen
         var sliderObj = new GameObject("HPSlider");
         sliderObj.transform.SetParent(root.transform, false);
         var sliderRect = sliderObj.AddComponent<RectTransform>();
-        sliderRect.sizeDelta = new Vector2(300, 20);
+        sliderRect.sizeDelta = new Vector2(200, 20); // Reduced width to avoid overlap
         sliderRect.anchoredPosition = new Vector2(50, -15);
         sliderRect.anchorMin = new Vector2(0, 0.5f);
         sliderRect.anchorMax = new Vector2(0, 0.5f);
@@ -195,19 +195,59 @@ public class BossBattleUI_Gen
         btnText.alignment = TextAlignmentOptions.Center;
         SetFullStretch(btnText.rectTransform);
 
-        // Status Text
-        var statusObj = new GameObject("Status");
+        // Status Group Container
+        var statusObj = new GameObject("StatusGroup");
         statusObj.transform.SetParent(root.transform, false);
-        var statusText = statusObj.AddComponent<TextMeshProUGUI>();
-        statusText.text = "Time: ...";
-        statusText.fontSize = 14;
-        statusText.color = Color.yellow;
-        statusText.rectTransform.anchorMin = new Vector2(1, 1);
-        statusText.rectTransform.anchorMax = new Vector2(1, 1);
-        statusText.rectTransform.pivot = new Vector2(1, 1);
-        statusText.rectTransform.anchoredPosition = new Vector2(-120, -10);
-        statusText.rectTransform.sizeDelta = new Vector2(150, 20); // Explicit Size
-        script.statusText = statusText;
+        var statusRect = statusObj.AddComponent<RectTransform>();
+        statusRect.anchorMin = new Vector2(1, 0.5f);
+        statusRect.anchorMax = new Vector2(1, 0.5f);
+        statusRect.pivot = new Vector2(1, 0.5f);
+        statusRect.anchoredPosition = new Vector2(-120, 0); // Left of button
+        statusRect.sizeDelta = new Vector2(250, 70);
+        
+        var hlg = statusObj.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlHeight = false;
+        hlg.childControlWidth = false;
+        hlg.childForceExpandHeight = false;
+        hlg.childForceExpandWidth = false;
+        hlg.spacing = 10;
+        hlg.childAlignment = TextAnchor.MiddleRight;
+
+        // 1. Attempts Text (Left side of group)
+        var attemptsObj = new GameObject("AttemptsText");
+        attemptsObj.transform.SetParent(statusObj.transform, false);
+        var attemptsTxt = attemptsObj.AddComponent<TextMeshProUGUI>();
+        attemptsTxt.text = "<size=50%>Attempts</size>\n1/5";
+        attemptsTxt.alignment = TextAlignmentOptions.Center; 
+        attemptsTxt.fontSize = 28;
+        attemptsTxt.color = Color.yellow;
+        attemptsTxt.rectTransform.sizeDelta = new Vector2(80, 60);
+        script.attemptsText = attemptsTxt;
+
+        // 2. Time Badge (Background)
+        var timeBadgeObj = new GameObject("TimeBadge");
+        timeBadgeObj.transform.SetParent(statusObj.transform, false);
+        var timeBadgeImage = timeBadgeObj.AddComponent<Image>();
+        timeBadgeImage.color = new Color(0, 0, 0, 0.6f); // Dark Background
+        // Try to load standard rounded background
+        timeBadgeImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+        timeBadgeImage.type = Image.Type.Sliced;
+        timeBadgeImage.pixelsPerUnitMultiplier = 0.33f; // 3x Rounding effect (Lower multiplier = Bigger slices)
+        
+        var timeBadgeRect = timeBadgeObj.GetComponent<RectTransform>();
+        timeBadgeRect.sizeDelta = new Vector2(140, 50); // Box Size
+        
+        // 3. Time Text (Inside Badge)
+        var timeObj = new GameObject("TimeText");
+        timeObj.transform.SetParent(timeBadgeObj.transform, false);
+        var timeTxt = timeObj.AddComponent<TextMeshProUGUI>();
+        timeTxt.text = "27m Left";
+        timeTxt.alignment = TextAlignmentOptions.Center; // Center inside Badge
+        timeTxt.fontSize = 24; // Slightly smaller to fit in box
+        timeTxt.color = new Color(1f, 0.8f, 0.2f); // Gold-ish
+        
+        SetFullStretch(timeTxt.rectTransform); // Stretch to fill badge
+        script.timeText = timeTxt;
 
         // SET UI LAYER
         SetLayerRecursively(root, LayerMask.NameToLayer("UI"));

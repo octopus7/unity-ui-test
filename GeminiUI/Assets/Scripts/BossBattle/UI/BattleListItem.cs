@@ -10,7 +10,8 @@ public class BattleListItem : MonoBehaviour
     public TextMeshProUGUI hostNameText;
     public TextMeshProUGUI hpText;
     public Slider hpSlider;
-    public TextMeshProUGUI statusText; // "Attempts: 3/5" or "Time: 10m"
+    public TextMeshProUGUI attemptsText; // "Attempts\n1/5"
+    public TextMeshProUGUI timeText;     // "| 20m Left"
     public Image myBattleTag; // Icon for "My Battle"
     public Button participateButton;
 
@@ -33,7 +34,10 @@ public class BattleListItem : MonoBehaviour
         long now = DateTimeOffset.Now.ToUnixTimeSeconds();
         long remaining = battle.ExpiryTimestamp - now;
         string timeStr = remaining > 0 ? $"{remaining / 60}m Left" : "Expiring...";
-        statusText.text = $"Attempts: {battle.AttemptsUsed}/{battle.MaxAttempts} | {timeStr}";
+        
+        // Split Text: Attempts (Centered) and Time
+        attemptsText.text = $"<size=50%>Attempts</size>\n{battle.AttemptsUsed}/{battle.MaxAttempts}";
+        timeText.text = $"{timeStr}";
 
         // My Battle Tag
         if (myBattleTag != null)

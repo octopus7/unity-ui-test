@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class BossBattleSceneSetup
 {
-    [MenuItem("GeminiUI/Setup BossBattle Scene")]
+    [MenuItem("GeminiUI/Setup BossBattle Scene", false, 21)]
     public static void SetupScene()
     {
         // 1. Setup Canvas & EventSystem
@@ -89,4 +89,24 @@ public class BossBattleSceneSetup
 
         Debug.Log("BossBattle Scene Setup Complete!");
     }
+    [MenuItem("GeminiUI/Reset and Regenerate All", false, 0)]
+    public static void ResetAndRegenerateScene()
+    {
+        // 1. Destroy existing LobbyCanvas
+        GameObject existingCanvas = GameObject.Find("LobbyCanvas");
+        if (existingCanvas != null)
+        {
+            Object.DestroyImmediate(existingCanvas);
+             Debug.Log("Destroyed existing LobbyCanvas.");
+        }
+
+        // 2. Force Regenerate Prefabs
+        BossBattleUI_Gen.ForceGenerateAll();
+
+        // 3. Setup Scene again
+        SetupScene();
+
+        Debug.Log("[BossBattleSceneSetup] Reset & Regenerate Complete!");
+    }
+
 }
