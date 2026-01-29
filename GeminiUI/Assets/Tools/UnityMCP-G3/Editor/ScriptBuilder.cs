@@ -19,10 +19,15 @@ namespace UnityMCP.Editor
         [Serializable]
         public class PendingJob
         {
-            public string JobType; // "AttachComponent"
+            public string JobType; // "AttachComponent" or "BindComponent"
             public string ScriptName;
             public string TargetPrefabPath;
             public long Timestamp;
+            
+            // For Binding
+            public string UiElementName;
+            public string FieldName;
+            public string BindTargetName;
         }
 
         [Serializable]
@@ -65,7 +70,7 @@ namespace UnityMCP.Editor
             return new { status = "success", message = "Script created. Compilation triggered.", pendingJob = !string.IsNullOrEmpty(args.prefabPath) };
         }
 
-        private static void AddJob(PendingJob job)
+        public static void AddJob(PendingJob job)
         {
             JobList list = new JobList();
             if (File.Exists(JOB_FILE_PATH))

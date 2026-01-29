@@ -9,7 +9,7 @@ namespace UnityMCP.Server
     public class UnityClient
     {
         private readonly HttpClient _httpClient;
-        private readonly string _unityServerUrl = "http://127.0.0.1:8080"; // Default Unity Editor Server URL
+        private readonly string _unityServerUrl = "http://127.0.0.1:8081"; // Default Unity Editor Server URL
 
         public UnityClient()
         {

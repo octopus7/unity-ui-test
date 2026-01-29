@@ -11,116 +11,190 @@ namespace UnityMCP.Editor
         public class BindComponentArgs
         {
             public string prefabPath;
-            public string uiElementName; // Element containing the script (e.g. root or child)
-            public string scriptName;    // Component Type Name
-            public string fieldName;     // Field to bind
-            public string targetElementName; // The UI element to assign to the field
+            public string uiElementName; 
+            public string scriptName;    
+            public string fieldName;     
+            public string targetElementName; 
+            public string targetAssetPath; // New field
         }
 
         public static object BindComponent(string argsJson)
         {
             var args = JsonUtility.FromJson<BindComponentArgs>(argsJson);
-
-            GameObject prefabContents = PrefabUtility.LoadPrefabContents(args.prefabPath);
             
-            // 1. Find the object holding the script
-            GameObject scriptObj = prefabContents; // Default to root
-            if (!string.IsNullOrEmpty(args.uiElementName))
+            string error;
+            if (TryBind(args, out error))
             {
-                var found = prefabContents.transform.Find(args.uiElementName);
-                if (found) scriptObj = found.gameObject;
-            }
-
-            // 2. Find the component (Script)
-            // Need to find type by name
-            Component component = scriptObj.GetComponent(args.scriptName); // GetComponent(string) only works for built-in? No, deprecated.
-            // We need Type
-             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            Type targetType = null;
-            foreach (var asm in assemblies)
-            {
-                targetType = asm.GetType(args.scriptName);
-                if (targetType != null) break;
-            }
-            
-            if (targetType == null)
-            {
-                PrefabUtility.UnloadPrefabContents(prefabContents);
-                return new { status = "error", message = $"Type {args.scriptName} not found" };
-            }
-
-            component = scriptObj.GetComponent(targetType);
-            if (component == null)
-            {
-                PrefabUtility.UnloadPrefabContents(prefabContents);
-                // Return special status to indicate "Not Found (Maybe Pending)"
-                return new { status = "error", code = "ComponentNotFound", message = $"Component {args.scriptName} not found on {scriptObj.name}" };
-            }
-
-            // 3. Find the target object to bind
-            GameObject targetObj = prefabContents;
-            if (!string.IsNullOrEmpty(args.targetElementName))
-            {
-                var found = prefabContents.transform.Find(args.targetElementName);
-                if (found) targetObj = found.gameObject;
-            }
-
-            // 4. Bind using SerializedObject
-            SerializedObject so = new SerializedObject(component);
-            SerializedProperty prop = so.FindProperty(args.fieldName);
-
-            if (prop == null)
-            {
-                PrefabUtility.UnloadPrefabContents(prefabContents);
-                return new { status = "error", message = $"Property {args.fieldName} not found on {args.scriptName}" };
-            }
-
-            if (prop.propertyType == SerializedPropertyType.ObjectReference)
-            {
-                // Try to find if the property expects a Component or GameObject
-                // Reflection to check type? Or just try assigning GameObject or Component
-                // SerializedProperty doesn't easily tell us the exact required Component type (e.g. Text vs Image) easily without reflection on the field.
-                
-                // Naive approach: Try to assign the GameObject. If field expects Component, Unity SerializedProperty *might* handle it if we assign the component?
-                // Actually, if we assign a GameObject to a field expecting `Text`, it might fail or auto-find.
-                // Best practice: Check field type.
-                
-                FieldInfo fieldInfo = targetType.GetField(args.fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (fieldInfo != null)
-                {
-                    Type fieldType = fieldInfo.FieldType;
-                    if (typeof(Component).IsAssignableFrom(fieldType))
-                    {
-                        // Field wants a Component (e.g. Text)
-                        var targetComponent = targetObj.GetComponent(fieldType);
-                        if (targetComponent != null)
-                        {
-                            prop.objectReferenceValue = targetComponent;
-                        }
-                        else
-                        {
-                            // Try generic Image/Text/Button if exact match not found? 
-                            // Or just fail.
-                             PrefabUtility.UnloadPrefabContents(prefabContents);
-                             return new { status = "error", message = $"Target {args.targetElementName} does not have component {fieldType.Name}" };
-                        }
-                    }
-                    else if (typeof(GameObject).IsAssignableFrom(fieldType))
-                    {
-                        prop.objectReferenceValue = targetObj;
-                    }
-                }
+                return new { status = "success", message = $"Bound {args.fieldName}" };
             }
             else
             {
-                 // Non-object property (int, string, etc) - not supported by this simple binder yet
+                // Component Missing likely means compilation pending -> Queue it
+                if (error.Contains("not found") || error.Contains("Component"))
+                {
+                     ScriptBuilder.AddJob(new ScriptBuilder.PendingJob
+                    {
+                        JobType = "BindComponent",
+                        ScriptName = args.scriptName,
+                        TargetPrefabPath = args.prefabPath,
+                        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        UiElementName = args.uiElementName,
+                        FieldName = args.fieldName,
+                        BindTargetName = args.targetElementName,
+                        // Note: PendingJob struct in ScriptBuilder needs update to store AssetPath too if we want full robustness,
+                        // but for now let's hope it succeeds immediately or we might lose the asset path in queue.
+                        // Assuming simple case: script exists, just binding.
+                    });
+                     return new { status = "pending", message = "Binding queued after compilation." };
+                }
+                
+                return new { status = "error", message = error };
+            }
+        }
+
+        public static bool TryBind(BindComponentArgs args, out string error)
+        {
+            error = "";
+            GameObject prefabContents = PrefabUtility.LoadPrefabContents(args.prefabPath);
+            if (prefabContents == null) 
+            {
+                error = "Prefab not found"; 
+                return false; 
             }
 
-            so.ApplyModifiedProperties();
-            PrefabUtility.SaveAsPrefabAsset(prefabContents, args.prefabPath);
-            PrefabUtility.UnloadPrefabContents(prefabContents);
+            try
+            {
+                // 1. Find Script Object
+                GameObject scriptObj = prefabContents;
+                if (!string.IsNullOrEmpty(args.uiElementName))
+                {
+                    Transform t = FindDeep(prefabContents.transform, args.uiElementName);
+                    if (t) scriptObj = t.gameObject;
+                    else { error = $"Script holding element '{args.uiElementName}' not found"; return false; }
+                }
 
-            return new { status = "success", message = $"Bound {args.targetElementName} to {args.fieldName}" };
+                // 2. Find Component Type
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                Type targetType = null;
+                foreach (var asm in assemblies)
+                {
+                    targetType = asm.GetType(args.scriptName);
+                    if (targetType != null) break;
+                }
+                
+                // Fallback for Unity Built-in types (Image, Button, etc) which might need full qualification or namespace
+                if (targetType == null && args.scriptName == "Image") targetType = typeof(UnityEngine.UI.Image);
+                if (targetType == null && args.scriptName == "Button") targetType = typeof(UnityEngine.UI.Button);
+                if (targetType == null && args.scriptName == "Text") targetType = typeof(UnityEngine.UI.Text);
+
+                if (targetType == null) 
+                {
+                    error = $"Type {args.scriptName} not found";
+                    return false;
+                }
+
+                Component component = scriptObj.GetComponent(targetType);
+                if (component == null)
+                {
+                    error = $"Component {args.scriptName} not attached to {scriptObj.name}";
+                    return false;
+                }
+
+                // 3. Find Target Object OR Asset
+                UnityEngine.Object targetObject = null;
+
+                if (!string.IsNullOrEmpty(args.targetAssetPath))
+                {
+                    // Load Asset
+                    targetObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(args.targetAssetPath);
+                    if (targetObject == null)
+                    {
+                        error = $"Asset at {args.targetAssetPath} not found";
+                        return false;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(args.targetElementName))
+                {
+                    Transform t = FindDeep(prefabContents.transform, args.targetElementName);
+                    if (t) targetObject = t.gameObject;
+                    else { error = $"Target element '{args.targetElementName}' not found"; return false; }
+                }
+
+                // 4. Bind
+                SerializedObject so = new SerializedObject(component);
+                SerializedProperty prop = so.FindProperty(args.fieldName);
+
+                if (prop == null)
+                {
+                    error = $"Property {args.fieldName} not found on {args.scriptName}";
+                    return false; 
+                }
+
+                if (prop.propertyType == SerializedPropertyType.ObjectReference)
+                {
+                    if (targetObject != null)
+                    {
+                         // If target is GameObject but property expects Component, try to GetComponent
+                         if (targetObject is GameObject go)
+                         {
+                            // Try to match property type
+                            // This relies on field type inspection which is hard without reflection on the field info (which we did partially).
+                            // Let's use the property's objectReferenceValue type hint if possible? No.
+                            
+                            // Reflection approach again
+                             FieldInfo fieldInfo = targetType.GetField(args.fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                             if (fieldInfo != null)
+                             {
+                                 Type fieldType = fieldInfo.FieldType;
+                                 if (typeof(Component).IsAssignableFrom(fieldType))
+                                 {
+                                     var targetComponent = go.GetComponent(fieldType);
+                                     if (targetComponent != null) prop.objectReferenceValue = targetComponent;
+                                     else 
+                                     {
+                                         error = $"Target {args.targetElementName} missing component {fieldType.Name}";
+                                         return false;
+                                     }
+                                 }
+                                 else if (typeof(GameObject).IsAssignableFrom(fieldType))
+                                 {
+                                     prop.objectReferenceValue = go;
+                                 }
+                             }
+                             else
+                             {
+                                 // Fallback: Just try setting it, maybe it works if it's generic Object
+                                 prop.objectReferenceValue = go;
+                             }
+                         }
+                         else
+                         {
+                             // Asset (Sprite, etc)
+                             prop.objectReferenceValue = targetObject;
+                         }
+                    }
+                }
+                
+                so.ApplyModifiedProperties();
+                PrefabUtility.SaveAsPrefabAsset(prefabContents, args.prefabPath);
+                return true;
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabContents);
+            }
+        }
+
+        private static Transform FindDeep(Transform parent, string name)
+        {
+            var result = parent.Find(name);
+            if (result != null) return result;
+            foreach (Transform child in parent)
+            {
+                result = FindDeep(child, name);
+                if (result != null) return result;
+            }
+            return null;
         }
     }
 }

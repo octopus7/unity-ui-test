@@ -23,6 +23,28 @@ namespace UnityMCP.Editor
             public string name;
         }
 
+        public static object CreateRectPrefab(string argsJson)
+        {
+            var args = JsonUtility.FromJson<CreateCanvasArgs>(argsJson);
+            
+            string fullPath = args.path;
+            if (!fullPath.EndsWith(".prefab")) fullPath += ".prefab";
+            
+            GameObject root = new GameObject(args.name);
+            var rect = root.AddComponent<RectTransform>();
+            
+            // Default to full stretch, expecting to be placed in a Canvas
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            
+            PrefabUtility.SaveAsPrefabAsset(root, fullPath);
+            GameObject.DestroyImmediate(root);
+            
+            return new { status = "success", path = fullPath };
+        }
+
         public static object CreateCanvasPrefab(string argsJson)
         {
             // Note: In a real implementation, we need a better JSON parser than JsonUtility for nested objects passed as string 
@@ -163,6 +185,29 @@ namespace UnityMCP.Editor
                 layout.childForceExpandHeight = false; // Don't force children to equal height
                 layout.spacing = 20;
                 layout.padding = new RectOffset(20, 20, 20, 20);
+            }
+            else
+            {
+                // Try to find Type by name
+                System.Type t = System.Type.GetType(args.type);
+                if (t == null)
+                {
+                    // Search all assemblies
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        t = asm.GetType(args.type);
+                        if (t != null) break;
+                    }
+                }
+
+                if (t != null && typeof(Component).IsAssignableFrom(t))
+                {
+                    newObj.AddComponent(t);
+                }
+                else
+                {
+                    Debug.LogWarning($"[UnityMCP] Unknown type '{args.type}'. Creating empty GameObject.");
+                }
             }
 
             PrefabUtility.SaveAsPrefabAsset(prefabContents, args.prefabPath);

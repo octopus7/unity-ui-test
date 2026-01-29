@@ -513,7 +513,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PopupController
   popupPrefab: {fileID: 1836091700861680444, guid: 209dda10b3862684f9a0edefa0e83d92, type: 3}
-  twinImagePopupPrefab: {fileID: 5849815446220420561, guid: e7e5dcbde3c0e8240973c5c97d5c35cd, type: 3}
+  twinImagePopupPrefab: {fileID: 7399329270276077212, guid: 1aa0b666ac6813747aa46e97568b970e, type: 3}
   mainCanvas: {fileID: 2902528911942901349}
   button1: {fileID: 1154316826099232162}
   button2: {fileID: 4389256206173082032}

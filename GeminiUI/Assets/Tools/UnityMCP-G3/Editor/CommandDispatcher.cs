@@ -33,6 +33,8 @@ namespace UnityMCP.Editor
             {
                 case "unity_create_canvas_prefab":
                     return PrefabOps.CreateCanvasPrefab(command.ArgsJson);
+                case "unity_create_rect_prefab":
+                    return PrefabOps.CreateRectPrefab(command.ArgsJson);
                 case "unity_add_ui_element":
                     return PrefabOps.AddUiElement(command.ArgsJson);
                 case "unity_create_script":

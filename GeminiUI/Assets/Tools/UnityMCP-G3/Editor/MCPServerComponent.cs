@@ -15,7 +15,7 @@ namespace UnityMCP.Editor
     {
         private static HttpListener _listener;
         private static bool _isRunning = false;
-        private const string URL = "http://127.0.0.1:8080/";
+        private const string URL = "http://127.0.0.1:8081/";
         private static ConcurrentQueue<Action> _mainThreadQueue = new ConcurrentQueue<Action>();
 
         static MCPServerComponent()
