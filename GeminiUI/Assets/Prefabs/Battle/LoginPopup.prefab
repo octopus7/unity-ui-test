@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7153593303269545654}
   - component: {fileID: 693892046263443986}
   - component: {fileID: 1497840934456002925}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: LoginPopup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 733873717133799836}
   - component: {fileID: 1245289311614833658}
   - component: {fileID: 453287008298056421}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TextArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 2510105984145109917}
   - component: {fileID: 545985796474224858}
   - component: {fileID: 7213377567146825320}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: StartBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -363,7 +363,7 @@ GameObject:
   - component: {fileID: 160627670896321961}
   - component: {fileID: 8111541763857411172}
   - component: {fileID: 3479752010247805257}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InputID
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -540,7 +540,7 @@ GameObject:
   - component: {fileID: 2871755913225644492}
   - component: {fileID: 4502211751206456956}
   - component: {fileID: 1540003143702037661}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}

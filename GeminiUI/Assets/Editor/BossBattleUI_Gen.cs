@@ -74,6 +74,15 @@ public class BossBattleUI_Gen
         rt.offsetMax = Vector2.zero;
     }
 
+    private static void SetLayerRecursively(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
+
     // 1. BattleListItem
     private static GameObject GenerateBattleListItem()
     {
@@ -108,11 +117,19 @@ public class BossBattleUI_Gen
         // Host Name
         var hostObj = new GameObject("HostName");
         hostObj.transform.SetParent(root.transform, false);
+        var hostRect = hostObj.AddComponent<RectTransform>();
+        hostRect.anchoredPosition = new Vector2(50, 15);
+        hostRect.sizeDelta = new Vector2(300, 30); // Explicit Size
+        hostRect.anchorMin = new Vector2(0, 0.5f); // Left align relative to parent
+        hostRect.anchorMax = new Vector2(0, 0.5f);
+        hostRect.pivot = new Vector2(0, 0.5f);
+        
         var hostText = hostObj.AddComponent<TextMeshProUGUI>();
         hostText.text = "Host: User";
         hostText.fontSize = 20;
         hostText.color = Color.white;
-        hostText.rectTransform.anchoredPosition = new Vector2(50, 15);
+        hostText.alignment = TextAlignmentOptions.Left;
+        hostText.enableWordWrapping = false;
         script.hostNameText = hostText;
 
         // HP Slider
@@ -121,13 +138,16 @@ public class BossBattleUI_Gen
         var sliderRect = sliderObj.AddComponent<RectTransform>();
         sliderRect.sizeDelta = new Vector2(300, 20);
         sliderRect.anchoredPosition = new Vector2(50, -15);
+        sliderRect.anchorMin = new Vector2(0, 0.5f);
+        sliderRect.anchorMax = new Vector2(0, 0.5f);
+        sliderRect.pivot = new Vector2(0, 0.5f);
         var slider = sliderObj.AddComponent<Slider>();
         
         // Slider BG & Fill (Simplified)
         var slBg = new GameObject("BG");
         slBg.transform.SetParent(sliderObj.transform, false);
         slBg.AddComponent<Image>().color = Color.gray;
-        SetFullStretch(slBg.GetComponent<RectTransform>()); // Fixed: GetComponent
+        SetFullStretch(slBg.GetComponent<RectTransform>()); 
         
         var slFillArea = new GameObject("Fill Area");
         slFillArea.transform.SetParent(sliderObj.transform, false);
@@ -138,7 +158,7 @@ public class BossBattleUI_Gen
         slFill.transform.SetParent(slFillArea.transform, false);
         var fillImg = slFill.AddComponent<Image>();
         fillImg.color = Color.red;
-        SetFullStretch(slFill.GetComponent<RectTransform>()); // Fixed: GetComponent
+        SetFullStretch(slFill.GetComponent<RectTransform>()); 
 
         slider.targetGraphic = slBg.GetComponent<Image>();
         slider.fillRect = slFill.GetComponent<RectTransform>();
@@ -186,7 +206,11 @@ public class BossBattleUI_Gen
         statusText.rectTransform.anchorMax = new Vector2(1, 1);
         statusText.rectTransform.pivot = new Vector2(1, 1);
         statusText.rectTransform.anchoredPosition = new Vector2(-120, -10);
+        statusText.rectTransform.sizeDelta = new Vector2(150, 20); // Explicit Size
         script.statusText = statusText;
+
+        // SET UI LAYER
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         string path = "Assets/Prefabs/Battle/BattleListItem.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
@@ -221,6 +245,7 @@ public class BossBattleUI_Gen
         titleTxt.alignment = TextAlignmentOptions.Center;
         titleTxt.color = Color.black;
         titleTxt.rectTransform.anchoredPosition = new Vector2(0, 100);
+        titleTxt.rectTransform.sizeDelta = new Vector2(300, 50); // Explicit
         script.titleText = titleTxt;
 
         // Message
@@ -231,6 +256,7 @@ public class BossBattleUI_Gen
         msgTxt.fontSize = 20;
         msgTxt.alignment = TextAlignmentOptions.Center;
         msgTxt.color = Color.black;
+        msgTxt.rectTransform.sizeDelta = new Vector2(350, 100); // Explicit
         script.messageText = msgTxt;
 
         // Close Button
@@ -251,8 +277,11 @@ public class BossBattleUI_Gen
         var btnTxt = btnTxtObj.AddComponent<TextMeshProUGUI>();
         btnTxt.text = "Close";
         btnTxt.alignment = TextAlignmentOptions.Center;
+        btnTxt.color = Color.black;
         SetFullStretch(btnTxt.rectTransform);
 
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
+        
         string path = "Assets/Prefabs/Battle/ResultPopup.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
         return root;
@@ -272,7 +301,10 @@ public class BossBattleUI_Gen
         txt.fontSize = 36;
         txt.color = Color.red;
         txt.alignment = TextAlignmentOptions.Center;
+        txt.rectTransform.sizeDelta = new Vector2(200, 50);
         script.damageText = txt;
+
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         string path = "Assets/Prefabs/Battle/DamagePopup.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
@@ -329,6 +361,8 @@ public class BossBattleUI_Gen
         btnTxt.alignment = TextAlignmentOptions.Center;
         SetFullStretch(btnTxt.rectTransform);
 
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
+
         string path = "Assets/Prefabs/Battle/LoginPopup.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
         return root;
@@ -375,6 +409,7 @@ public class BossBattleUI_Gen
         goldTxt.rectTransform.anchorMax = new Vector2(0, 0.5f);
         goldTxt.rectTransform.pivot = new Vector2(0, 0.5f);
         goldTxt.rectTransform.anchoredPosition = new Vector2(20, 0);
+        goldTxt.rectTransform.sizeDelta = new Vector2(200, 40); // Explicit
         script.goldText = goldTxt;
 
         // Refresh Button
@@ -432,8 +467,10 @@ public class BossBattleUI_Gen
         viewport.transform.SetParent(svObj.transform, false);
         var vpRect = viewport.AddComponent<RectTransform>();
         SetFullStretch(vpRect);
-        viewport.AddComponent<Image>().color = new Color(0,0,0,0);
-        viewport.AddComponent<Mask>().showMaskGraphic = false;
+        
+        // Use RectMask2D for better masking support with TMPro
+        viewport.AddComponent<RectMask2D>();
+        
         scrollRect.viewport = vpRect;
 
         var content = new GameObject("Content");
@@ -464,6 +501,8 @@ public class BossBattleUI_Gen
         // Link Login to Lobby
         var loginScript = loginInstance.GetComponent<LoginPopup>();
         loginScript.lobbyUI = script;
+
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Battle/LobbyView.prefab");
         Object.DestroyImmediate(root);
