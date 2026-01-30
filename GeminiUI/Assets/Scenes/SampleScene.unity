@@ -742,11 +742,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5409921074019858288, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}
       propertyPath: m_text
-      value: "\u5B78"
+      value: "\u76F4\u9AA8\u8FD4"
       objectReference: {fileID: 0}
     - target: {fileID: 5409921074019858288, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5409921074019858288, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}
+      propertyPath: m_margin.z
+      value: -69.248245
       objectReference: {fileID: 0}
     - target: {fileID: 5409921074019858288, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}
       propertyPath: m_fontAsset
@@ -809,7 +813,8 @@ PrefabInstance:
       value: -1183493901
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 6853741780894869589, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b354d0063c8d884db6aa23c7f7cca2e, type: 3}

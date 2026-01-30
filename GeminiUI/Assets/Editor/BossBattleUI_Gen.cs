@@ -16,14 +16,14 @@ public class BossBattleUI_Gen
     public static void ForceGenerateAll()
     {
         // Reset flag to force regeneration
-        SessionState.SetBool("BossBattleUI_Gen_Done_V7", false);
+        SessionState.SetBool("BossBattleUI_Gen_Done_V13", false);
         GenerateAll();
     }
 
     private static void GenerateAll()
     {
-        if (SessionState.GetBool("BossBattleUI_Gen_Done_V7", false)) return;
-        SessionState.SetBool("BossBattleUI_Gen_Done_V7", true);
+        if (SessionState.GetBool("BossBattleUI_Gen_Done_V13", false)) return;
+        SessionState.SetBool("BossBattleUI_Gen_Done_V13", true);
 
         if (!Directory.Exists("Assets/Prefabs/Battle"))
         {
@@ -41,16 +41,18 @@ public class BossBattleUI_Gen
             itemPrefabObj = GenerateBattleListItem();
             resultPopupObj = GenerateResultPopup();
             damagePopupObj = GenerateDamagePopup();
-            var langPopupObj = GenerateLanguagePopup(); // New
+            var langPopupObj = GenerateLanguagePopup();
+            var selectionUIObj = GenerateSelectionUI(); // Generate SelectionUI
             loginPopupObj = GenerateLoginPopup();
             
-            if (langPopupObj) Object.DestroyImmediate(langPopupObj); // Cleanup temp
+            if (langPopupObj) Object.DestroyImmediate(langPopupObj);
+            if (selectionUIObj) Object.DestroyImmediate(selectionUIObj); // Cleanup temp
 
             // Refresh to ensure LoadAssetAtPath finds them
             AssetDatabase.Refresh();
 
-            // 2. Create Lobby View (Depends on Item)
-            GenerateLobbyView(itemPrefabObj, resultPopupObj, damagePopupObj, loginPopupObj);
+            // 2. Create Lobby View (Wires everything)
+            GenerateLobbyView(itemPrefabObj, resultPopupObj, damagePopupObj, loginPopupObj, null);
 
             Debug.Log("[BossBattleUI_Gen] All Prefabs Generated in Assets/Prefabs/Battle/");
         }
@@ -194,13 +196,18 @@ public class BossBattleUI_Gen
         var btn = btnObj.AddComponent<Button>();
         script.participateButton = btn;
 
-        var btnTextObj = new GameObject("Text");
-        btnTextObj.transform.SetParent(btnObj.transform, false);
-        var btnText = btnTextObj.AddComponent<TextMeshProUGUI>();
-        btnText.text = "Participate";
-        btnText.fontSize = 16;
-        btnText.alignment = TextAlignmentOptions.Center;
-        SetFullStretch(btnText.rectTransform);
+        var btnTxtObj = new GameObject("Text");
+        btnTxtObj.transform.SetParent(btnObj.transform, false);
+        var btnTxt = btnTxtObj.AddComponent<TextMeshProUGUI>();
+        btnTxt.text = "Participate";
+        btnTxt.color = Color.white;
+        btnTxt.fontSize = 18;
+        btnTxt.alignment = TextAlignmentOptions.Center;
+        SetFullStretch(btnTxt.rectTransform);
+        
+        // Localization
+        var loc = btnTxtObj.AddComponent<LocalizedText>();
+        loc.SetKey("UI_Battle_Participate");
 
         // Status Group Container
         var statusObj = new GameObject("StatusGroup");
@@ -441,24 +448,6 @@ public class BossBattleUI_Gen
         
         script.languageBtn = langBtn;
 
-        // TEST: CJK Character Check (Bottom Left)
-        var testCharObj = new GameObject("TestChar_CJK");
-        testCharObj.transform.SetParent(root.transform, false);
-        var testCharTxt = testCharObj.AddComponent<TextMeshProUGUI>();
-        testCharTxt.text = "國"; // Hanja/Kanji for Country
-        testCharTxt.fontSize = 60;
-        testCharTxt.color = Color.white;
-        testCharTxt.alignment = TextAlignmentOptions.Center;
-
-        // Add LocalizedText for Font Switching (No Key=No Text Change)
-        testCharObj.AddComponent<LocalizedText>();
-        
-        var testCharRect = testCharObj.GetComponent<RectTransform>();
-        testCharRect.anchorMin = new Vector2(0, 0);
-        testCharRect.anchorMax = new Vector2(0, 0);
-        testCharRect.pivot = new Vector2(0, 0);
-        testCharRect.anchoredPosition = new Vector2(20, 20); // Bottom Left
-        testCharRect.sizeDelta = new Vector2(100, 100);
 
         // Language Popup (Instance)
         var langPopupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Battle/LanguagePopup.prefab");
@@ -556,8 +545,74 @@ public class BossBattleUI_Gen
         return root;
     }
 
+    // 7. SelectionUI
+    private static GameObject GenerateSelectionUI()
+    {
+        GameObject root = new GameObject("SelectionUI");
+        var rt = root.AddComponent<RectTransform>();
+        SetFullStretch(rt);
+        var script = root.AddComponent<SelectionUI>();
+
+        // BG - Semi transparent or solid
+        root.AddComponent<Image>().color = new Color(0.1f, 0.1f, 0.2f);
+
+        // Panel for Buttons
+        var panel = new GameObject("Panel");
+        panel.transform.SetParent(root.transform, false);
+        var panelRect = panel.AddComponent<RectTransform>();
+        panelRect.anchoredPosition = Vector2.zero;
+        panelRect.sizeDelta = new Vector2(500, 300);
+        
+        var hlg = panel.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 50;
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+        hlg.childControlHeight = false;
+        hlg.childControlWidth = false;
+
+        // Button Helper
+        Button CreateBtn(string name, string key)
+        {
+            var btnObj = new GameObject(name);
+            btnObj.transform.SetParent(panel.transform, false);
+            var btnRect = btnObj.AddComponent<RectTransform>();
+            btnRect.sizeDelta = new Vector2(200, 100);
+            
+            var img = btnObj.AddComponent<Image>();
+            img.color = Color.white;
+            var btn = btnObj.AddComponent<Button>();
+            
+            var txtObj = new GameObject("Text");
+            txtObj.transform.SetParent(btnObj.transform, false);
+            var txt = txtObj.AddComponent<TextMeshProUGUI>();
+            txt.color = Color.black;
+            txt.fontSize = 24;
+            txt.alignment = TextAlignmentOptions.Center;
+            SetFullStretch(txt.rectTransform);
+            
+            // Localization
+            var loc = txtObj.AddComponent<LocalizedText>();
+            loc.SetKey(key);
+            
+            return btn;
+        }
+
+        // Inventory Button
+        script.inventoryBtn = CreateBtn("InventoryBtn", "UI_Select_Inventory");
+        script.inventoryBtn.image.color = new Color(0.5f, 0.5f, 1f); // Blue-ish
+
+        // Battle Button
+        script.battleBtn = CreateBtn("BattleBtn", "UI_Select_Battle");
+        script.battleBtn.image.color = new Color(1f, 0.5f, 0.5f); // Red-ish
+
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
+
+        string path = "Assets/Prefabs/Battle/SelectionUI.prefab";
+        PrefabUtility.SaveAsPrefabAsset(root, path);
+        return root;
+    }
+
     // 5. LobbyView (Main)
-    private static void GenerateLobbyView(GameObject itemPrefab, GameObject resPopup, GameObject dmgPopup, GameObject loginPopup)
+    private static void GenerateLobbyView(GameObject itemPrefab, GameObject resPopup, GameObject dmgPopup, GameObject loginPopup, GameObject selectionPopup)
     {
         GameObject root = new GameObject("LobbyView");
         var rt = root.AddComponent<RectTransform>();
@@ -575,9 +630,15 @@ public class BossBattleUI_Gen
         // UI Setup
         root.AddComponent<Image>().color = new Color(0.1f, 0.1f, 0.15f); // Dark Navy BG
 
+        // Container for Lobby Elements (to toggle visibility without hiding children like SelectionUI)
+        var lobbyContainer = new GameObject("LobbyContainer");
+        lobbyContainer.transform.SetParent(root.transform, false);
+        SetFullStretch(lobbyContainer.AddComponent<RectTransform>());
+        script.lobbyPanel = lobbyContainer;
+
         // Top Panel
         var topPanel = new GameObject("TopPanel");
-        topPanel.transform.SetParent(root.transform, false);
+        topPanel.transform.SetParent(lobbyContainer.transform, false); // Parent to Container
         var topRect = topPanel.AddComponent<RectTransform>();
         topRect.anchorMin = new Vector2(0, 1);
         topRect.anchorMax = new Vector2(1, 1);
@@ -586,7 +647,30 @@ public class BossBattleUI_Gen
         topRect.anchoredPosition = Vector2.zero;
         topPanel.AddComponent<Image>().color = new Color(0, 0, 0, 0.5f);
 
-        // Gold Text
+        // Back Button (Top Left)
+        var backBtnObj = new GameObject("BackBtn");
+        backBtnObj.transform.SetParent(topPanel.transform, false);
+        var backRect = backBtnObj.AddComponent<RectTransform>();
+        backRect.anchorMin = new Vector2(0, 0.5f);
+        backRect.anchorMax = new Vector2(0, 0.5f);
+        backRect.pivot = new Vector2(0, 0.5f);
+        backRect.anchoredPosition = new Vector2(10, 0); 
+        backRect.sizeDelta = new Vector2(80, 40); 
+        backBtnObj.AddComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f);
+        var backBtn = backBtnObj.AddComponent<Button>();
+        script.backButton = backBtn;
+        
+        var backTxtObj = new GameObject("Text");
+        backTxtObj.transform.SetParent(backBtnObj.transform, false);
+        var backTxt = backTxtObj.AddComponent<TextMeshProUGUI>();
+        backTxt.text = "Back";
+        backTxt.alignment = TextAlignmentOptions.Center;
+        backTxt.fontSize = 20;
+        SetFullStretch(backTxt.rectTransform);
+        var locBack = backTxtObj.AddComponent<LocalizedText>();
+        locBack.SetKey("UI_Common_Back");
+
+        // Gold Text (Moved Right)
         var goldObj = new GameObject("GoldText");
         goldObj.transform.SetParent(topPanel.transform, false);
         var goldTxt = goldObj.AddComponent<TextMeshProUGUI>();
@@ -596,8 +680,11 @@ public class BossBattleUI_Gen
         goldTxt.rectTransform.anchorMin = new Vector2(0, 0.5f);
         goldTxt.rectTransform.anchorMax = new Vector2(0, 0.5f);
         goldTxt.rectTransform.pivot = new Vector2(0, 0.5f);
-        goldTxt.rectTransform.anchoredPosition = new Vector2(20, 0);
-        goldTxt.rectTransform.sizeDelta = new Vector2(200, 40); // Explicit
+        goldTxt.rectTransform.anchoredPosition = new Vector2(110, 0); // Moved after Back button
+        goldTxt.rectTransform.sizeDelta = new Vector2(200, 40); 
+        
+        var locGold = goldObj.AddComponent<LocalizedText>();
+        locGold.SetKey("UI_Lobby_Gold");
         script.goldText = goldTxt;
 
         // Refresh Button
@@ -607,8 +694,8 @@ public class BossBattleUI_Gen
         refRect.anchorMin = new Vector2(1, 0.5f);
         refRect.anchorMax = new Vector2(1, 0.5f);
         refRect.pivot = new Vector2(1, 0.5f);
-        refRect.anchoredPosition = new Vector2(-250, 0); // Moved left to make room
-        refRect.sizeDelta = new Vector2(160, 50); // Bigger (100x40 -> 160x50)
+        refRect.anchoredPosition = new Vector2(-250, 0); 
+        refRect.sizeDelta = new Vector2(160, 50); 
         refBtnObj.AddComponent<Image>().color = Color.blue;
         var refBtn = refBtnObj.AddComponent<Button>();
         script.refreshButton = refBtn;
@@ -619,6 +706,8 @@ public class BossBattleUI_Gen
         refTxt.text = "Refresh";
         refTxt.alignment = TextAlignmentOptions.Center;
         SetFullStretch(refTxt.rectTransform);
+        var locRef = refTxtObj.AddComponent<LocalizedText>();
+        locRef.SetKey("UI_Lobby_Refresh");
 
          // Create Button
         var crtBtnObj = new GameObject("CreateBtn");
@@ -628,7 +717,7 @@ public class BossBattleUI_Gen
         crtRect.anchorMax = new Vector2(1, 0.5f);
         crtRect.pivot = new Vector2(1, 0.5f);
         crtRect.anchoredPosition = new Vector2(-20, 0);
-        crtRect.sizeDelta = new Vector2(220, 50); // Bigger (150x40 -> 220x50)
+        crtRect.sizeDelta = new Vector2(220, 50); 
         crtBtnObj.AddComponent<Image>().color = new Color(0.8f, 0.4f, 0);
         var crtBtn = crtBtnObj.AddComponent<Button>();
         script.createBattleButton = crtBtn;
@@ -639,14 +728,16 @@ public class BossBattleUI_Gen
         crtTxt.text = "Create Battle";
         crtTxt.alignment = TextAlignmentOptions.Center;
         SetFullStretch(crtTxt.rectTransform);
+        var locCrt = crtTxtObj.AddComponent<LocalizedText>();
+        locCrt.SetKey("UI_Lobby_CreateBattle");
 
         // Scroll View
         var svObj = new GameObject("ScrollView");
-        svObj.transform.SetParent(root.transform, false);
+        svObj.transform.SetParent(lobbyContainer.transform, false); // Parent to Container
         var svRect = svObj.AddComponent<RectTransform>();
         SetFullStretch(svRect);
         svRect.offsetMin = new Vector2(20, 20);
-        svRect.offsetMax = new Vector2(-20, -80); // Margin
+        svRect.offsetMax = new Vector2(-20, -80); 
         
         var scrollRect = svObj.AddComponent<ScrollRect>();
         svObj.AddComponent<Image>().color = new Color(0,0,0,0.3f);
@@ -656,7 +747,6 @@ public class BossBattleUI_Gen
         var vpRect = viewport.AddComponent<RectTransform>();
         SetFullStretch(vpRect);
         
-        // Use RectMask2D for better masking support with TMPro
         viewport.AddComponent<RectMask2D>();
         
         scrollRect.viewport = vpRect;
@@ -670,8 +760,8 @@ public class BossBattleUI_Gen
         contentRect.sizeDelta = new Vector2(0, 0);
         
         var vlg = content.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlHeight = false; // Let items define their height (80)
-        vlg.childForceExpandHeight = false; // Don't force them to fill empty space
+        vlg.childControlHeight = false; 
+        vlg.childForceExpandHeight = false; 
         vlg.childControlWidth = true;
         vlg.spacing = 5;
         vlg.padding = new RectOffset(5, 5, 5, 5);
@@ -682,18 +772,30 @@ public class BossBattleUI_Gen
         scrollRect.horizontal = false;
         script.listContent = contentRect;
 
-        // Add Login Popup Instance (Hidden) so it can be controlled
+        // --- WIRING ---
+        
+        // 1. Selection UI (Intermediate)
+        var selectInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Battle/SelectionUI.prefab"));
+        selectInstance.transform.SetParent(root.transform, false);
+        selectInstance.SetActive(false); // Hidden initially
+        
+        var selectScript = selectInstance.GetComponent<SelectionUI>();
+        selectScript.lobbyUI = script; // Bind Selection -> Lobby
+
+        script.selectionUI = selectScript; // Bind Lobby -> Selection (Back)
+
+        // 2. Login Popup (Entry)
         var loginInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Battle/LoginPopup.prefab"));
         loginInstance.transform.SetParent(root.transform, false);
         
-        // Link Login to Lobby
         var loginScript = loginInstance.GetComponent<LoginPopup>();
-        loginScript.lobbyUI = script;
+        loginScript.selectionUI = selectScript; // Bind Login -> Selection
 
         SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Battle/LobbyView.prefab");
         Object.DestroyImmediate(root);
         Object.DestroyImmediate(loginInstance);
+        Object.DestroyImmediate(selectInstance);
     }
 }

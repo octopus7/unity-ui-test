@@ -111,6 +111,7 @@ public class LocalizationManager : MonoBehaviour
         StringReader reader = new StringReader(csvFile.text);
         string line = reader.ReadLine(); // Header
         
+        int count = 0;
         while ((line = reader.ReadLine()) != null)
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
@@ -118,10 +119,10 @@ public class LocalizationManager : MonoBehaviour
             var values = SplitCsvLine(line);
             if (values.Count < 4) continue;
 
-            string key = values[0];
-            string ko = values[1];
-            string en = values[2];
-            string jp = values[3];
+            string key = values[0].Trim();
+            string ko = values[1].Trim();
+            string en = values[2].Trim();
+            string jp = values[3].Trim();
 
             if (!_localizationData.ContainsKey(key))
             {
@@ -132,7 +133,9 @@ public class LocalizationManager : MonoBehaviour
             _localizationData[key][GameLanguage.Korean] = ko;
             _localizationData[key][GameLanguage.English] = en;
             _localizationData[key][GameLanguage.Japanese] = jp;
+            count++;
         }
+        Debug.Log($"LocalizationManager: Parsed '{resourceName}' - {count} keys loaded.");
     }
     
     // Helper to split CSV line respecting quotes

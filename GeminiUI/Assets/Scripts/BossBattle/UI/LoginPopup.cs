@@ -9,7 +9,7 @@ public class LoginPopup : MonoBehaviour
     public TMP_InputField userIdInput;
     public Button startButton;
 
-    public LobbyUI lobbyUI; // Reference to Lobby to switch
+    public SelectionUI selectionUI; // Reference to Selection Screen
     
     [Header("Language Settings")]
     public Button languageBtn;
@@ -20,8 +20,9 @@ public class LoginPopup : MonoBehaviour
         // Load saved ID
         string savedId = PlayerPrefs.GetString("UserId", "");
         userIdInput.text = savedId;
-
-        startButton.onClick.AddListener(OnStartClicked);
+        
+        if (startButton != null)
+            startButton.onClick.AddListener(OnStartClicked);
         
         if (languageBtn != null)
         {
@@ -60,12 +61,12 @@ public class LoginPopup : MonoBehaviour
             // Load Content Localization (Phase 2)
             LocalizationManager.Instance.LoadContent();
 
-            // Close Login, Open Lobby
+            // Close Login, Open Selection
             gameObject.SetActive(false);
-            if(lobbyUI != null)
+            if(selectionUI != null)
             {
-                lobbyUI.Initialize(user);
-                lobbyUI.gameObject.SetActive(true);
+                selectionUI.Initialize(user);
+                selectionUI.gameObject.SetActive(true);
             }
         }
         catch (System.Exception e)

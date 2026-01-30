@@ -23,7 +23,9 @@ public class BattleListItem : MonoBehaviour
         _battleId = battle.BattleId;
         _onParticipate = onParticipate;
 
-        hostNameText.text = $"Host: {battle.HostUserId}";
+        // Localized Host
+        string hostFmt = LocalizationManager.Instance.GetString("UI_Battle_Host");
+        hostNameText.text = string.Format(hostFmt, battle.HostUserId);
         
         // HP
         hpText.text = $"{battle.CurrentHP} / {battle.MaxHP}";
@@ -33,10 +35,14 @@ public class BattleListItem : MonoBehaviour
         // Status
         long now = DateTimeOffset.Now.ToUnixTimeSeconds();
         long remaining = battle.ExpiryTimestamp - now;
-        string timeStr = remaining > 0 ? $"{remaining / 60}m Left" : "Expiring...";
+        
+        string timeFmt = LocalizationManager.Instance.GetString("UI_Battle_TimeLeft");
+        long mins = remaining > 0 ? remaining / 60 : 0;
+        string timeStr = remaining > 0 ? string.Format(timeFmt, mins) : "Expiring...";
         
         // Split Text: Attempts (Centered) and Time
-        attemptsText.text = $"<size=50%>Attempts</size>\n{battle.AttemptsUsed}/{battle.MaxAttempts}";
+        string attemptLabel = LocalizationManager.Instance.GetString("UI_Battle_Attempts");
+        attemptsText.text = $"<size=50%>{attemptLabel}</size>\n{battle.AttemptsUsed}/{battle.MaxAttempts}";
         timeText.text = $"{timeStr}";
 
         // My Battle Tag
