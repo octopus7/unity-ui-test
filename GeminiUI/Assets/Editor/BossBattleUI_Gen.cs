@@ -656,7 +656,7 @@ public class BossBattleUI_Gen
         svObj.transform.SetParent(panel.transform, false);
         var svRect = svObj.AddComponent<RectTransform>();
         svRect.anchoredPosition = new Vector2(0, 80); // Center-ish top
-        svRect.sizeDelta = new Vector2(550, 420); // Slightly taller
+        svRect.sizeDelta = new Vector2(560, 420); // Tighter fit
         
         var scrollRect = svObj.AddComponent<ScrollRect>();
         svObj.AddComponent<Image>().color = new Color(0,0,0,0.3f);
@@ -679,7 +679,7 @@ public class BossBattleUI_Gen
         var glg = content.AddComponent<GridLayoutGroup>();
         glg.cellSize = new Vector2(100, 100);
         glg.spacing = new Vector2(10, 10);
-        glg.padding = new RectOffset(5, 0, 0, 0);
+        glg.padding = new RectOffset(10, 10, 10, 10);
         glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         glg.constraintCount = 5; // 5 Items per row
         
@@ -757,8 +757,10 @@ public class BossBattleUI_Gen
         btnTxtObj.transform.SetParent(btnObj.transform, false);
         var btnTxt = btnTxtObj.AddComponent<TextMeshProUGUI>();
         btnTxt.text = "Close";
+        btnTxt.fontSize = 24;
         btnTxt.alignment = TextAlignmentOptions.Center;
         btnTxt.color = Color.white;
+        if (font != null) btnTxt.font = font;
         SetFullStretch(btnTxt.rectTransform);
         var locBtn = btnTxtObj.AddComponent<LocalizedText>();
         locBtn.SetKey("UI_Common_Close");
