@@ -37,23 +37,30 @@ public class SelectionUI : MonoBehaviour
             }
 
             inventoryPopup.gameObject.SetActive(true);
-            // Generate random items for testing
-            var items = new List<InventoryPopup.InventoryEntry>();
-            var allKeys = ItemManager.Instance.GetAllItemKeys();
-            
-            if (allKeys.Count > 0)
+            if (_currentUser != null && _currentUser.InventoryItems != null && _currentUser.InventoryItems.Count > 0)
             {
-                int count = Random.Range(5, 20); // Random count between 5 and 20
-                for (int i = 0; i < count; i++)
-                {
-                    int randomKey = allKeys[Random.Range(0, allKeys.Count)];
-                    int randomQty = Random.Range(1, 21); // Random quantity 1-20
-                    
-                    items.Add(new InventoryPopup.InventoryEntry { itemId = randomKey, quantity = randomQty });
-                }
+                inventoryPopup.Setup(_currentUser.InventoryItems);
             }
-            
-            inventoryPopup.Setup(items);
+            else
+            {
+                // Generate random items for testing
+                var items = new List<InventoryPopup.InventoryEntry>();
+                var allKeys = ItemManager.Instance.GetAllItemKeys();
+                
+                if (allKeys.Count > 0)
+                {
+                    int count = Random.Range(5, 20); // Random count between 5 and 20
+                    for (int i = 0; i < count; i++)
+                    {
+                        int randomKey = allKeys[Random.Range(0, allKeys.Count)];
+                        int randomQty = Random.Range(1, 21); // Random quantity 1-20
+                        
+                        items.Add(new InventoryPopup.InventoryEntry { itemId = randomKey, quantity = randomQty });
+                    }
+                }
+                
+                inventoryPopup.Setup(items);
+            }
             
             // Hide Selection UI
             gameObject.SetActive(false);

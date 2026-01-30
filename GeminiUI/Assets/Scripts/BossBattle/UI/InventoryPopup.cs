@@ -21,9 +21,34 @@ public class InventoryPopup : MonoBehaviour
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descText;
 
+    public void Setup(List<string> rawItems)
+    {
+        List<InventoryEntry> items = new List<InventoryEntry>();
+        if (rawItems != null)
+        {
+            Dictionary<int, int> counts = new Dictionary<int, int>();
+            foreach (var str in rawItems)
+            {
+                if (int.TryParse(str, out int id))
+                {
+                    if (counts.ContainsKey(id)) counts[id]++;
+                    else counts[id] = 1;
+                }
+            }
+            foreach (var kvp in counts)
+            {
+                items.Add(new InventoryEntry { itemId = kvp.Key, quantity = kvp.Value });
+            }
+        }
+        Setup(items);
+    }
+
+    private List<GameObject> _slots = new List<GameObject>();
+
     public void Setup(List<InventoryEntry> items)
     {
         // Clear existing
+        _slots.Clear();
         foreach (Transform child in content)
         {
             if (child.gameObject != itemTemplate) 
@@ -50,6 +75,7 @@ public class InventoryPopup : MonoBehaviour
              {
                  slot = Instantiate(itemTemplate, content);
                  slot.SetActive(true);
+                 _slots.Add(slot);
              }
              else
              {
@@ -61,7 +87,10 @@ public class InventoryPopup : MonoBehaviour
              if (itemData == null) continue;
 
              // 1. Set Icon
-             var images = slot.GetComponentsInChildren<Image>();
+             // ... existing icon logic (Assuming logic in template is correct, preserving structure)
+             // 1. Set Icon
+             // ... existing icon logic (Assuming logic in template is correct, preserving structure)
+             var images = slot.GetComponentsInChildren<Image>(true); // Use true to find hidden border if needed
              foreach(var img in images)
              {
                  if (img.gameObject.name == "Icon")
@@ -70,6 +99,13 @@ public class InventoryPopup : MonoBehaviour
                      img.enabled = (img.sprite != null);
                      break;
                  }
+             }
+             
+             // Handle Border (Find by name)
+             Transform border = slot.transform.Find("SelectedBorder");
+             if (border != null)
+             {
+                 border.gameObject.SetActive(false);
              }
 
              // 2. Set Quantity
@@ -88,23 +124,37 @@ public class InventoryPopup : MonoBehaviour
              if (btn == null) btn = slot.AddComponent<Button>();
              
              int currentId = entry.itemId;
-             btn.onClick.AddListener(() => OnItemClicked(currentId));
+             GameObject currentSlot = slot;
+             btn.onClick.AddListener(() => OnItemClicked(currentId, currentSlot));
         }
 
         // Auto-select first item if available
-        if (items.Count > 0)
+        if (items.Count > 0 && _slots.Count > 0)
         {
-            OnItemClicked(items[0].itemId);
+            OnItemClicked(items[0].itemId, _slots[0]);
         }
     }
 
-    void OnItemClicked(int itemId)
+    void OnItemClicked(int itemId, GameObject selectedSlot)
     {
         var item = ItemManager.Instance.GetItem(itemId);
         if (item != null)
         {
             if (nameText != null) nameText.text = ItemManager.Instance.GetItemName(itemId);
             if (descText != null) descText.text = ItemManager.Instance.GetItemDesc(itemId);
+        }
+
+        // Update Visuals
+        foreach (var slot in _slots)
+        {
+            if (slot == null) continue;
+            
+            // Find Border
+            Transform border = slot.transform.Find("SelectedBorder");
+            if (border != null)
+            {
+                border.gameObject.SetActive(slot == selectedSlot);
+            }
         }
     }
 

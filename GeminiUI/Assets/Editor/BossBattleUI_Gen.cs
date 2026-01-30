@@ -43,12 +43,12 @@ public class BossBattleUI_Gen
             damagePopupObj = GenerateDamagePopup();
             var langPopupObj = GenerateLanguagePopup();
             var selectionUIObj = GenerateSelectionUI(); // Generate SelectionUI
-            var inventoryPopupObj = GenerateInventoryPopup(); // Generate InventoryPopup
+            // var inventoryPopupObj = GenerateInventoryPopup(); // Generate InventoryPopup (Moved inside SelectionUI)
             loginPopupObj = GenerateLoginPopup();
             
             if (langPopupObj) Object.DestroyImmediate(langPopupObj);
             if (selectionUIObj) Object.DestroyImmediate(selectionUIObj);
-            if (inventoryPopupObj) Object.DestroyImmediate(inventoryPopupObj); // Cleanup temp
+            // if (inventoryPopupObj) Object.DestroyImmediate(inventoryPopupObj); // Cleanup temp
 
             // Refresh to ensure LoadAssetAtPath finds them
             AssetDatabase.Refresh();
@@ -606,6 +606,12 @@ public class BossBattleUI_Gen
         script.battleBtn = CreateBtn("BattleBtn", "UI_Select_Battle");
         script.battleBtn.image.color = new Color(1f, 0.5f, 0.5f); // Red-ish
 
+        // Inventory Popup (Generated and Nested)
+        var invPopupObj = GenerateInventoryPopup();
+        invPopupObj.transform.SetParent(root.transform, false);
+        invPopupObj.SetActive(false); // Hidden by default
+        script.inventoryPopup = invPopupObj.GetComponent<InventoryPopup>();
+
         SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         string path = "Assets/Prefabs/Battle/SelectionUI.prefab";
@@ -758,44 +764,80 @@ public class BossBattleUI_Gen
         locBtn.SetKey("UI_Common_Close");
         
         // Item Template (Prefab for slot)
-        var slotObj = new GameObject("ItemSlot");
-        slotObj.transform.SetParent(content.transform, false);
-        
-        // Background
-        slotObj.AddComponent<Image>().color = new Color(1,1,1,0.1f);
-        
-        // Icon Image
+        var itemTemplate = new GameObject("ItemTemplate");
+        itemTemplate.transform.SetParent(content.transform, false);
+        var itemRect = itemTemplate.AddComponent<RectTransform>();
+        itemRect.sizeDelta = new Vector2(100, 100);
+
+        // Slot BG
+        itemTemplate.AddComponent<Image>().color = new Color(0.3f, 0.3f, 0.45f); // Dark Slate
+        itemTemplate.AddComponent<Button>();
+
+        // Icon
         var iconObj = new GameObject("Icon");
-        iconObj.transform.SetParent(slotObj.transform, false);
+        iconObj.transform.SetParent(itemTemplate.transform, false);
         var iconRect = iconObj.AddComponent<RectTransform>();
         iconRect.anchorMin = Vector2.zero;
         iconRect.anchorMax = Vector2.one;
-        iconRect.offsetMin = new Vector2(10, 10); // Padding
-        iconRect.offsetMax = new Vector2(-10, -10);
-        var iconImg = iconObj.AddComponent<Image>();
-        iconImg.preserveAspect = true;
-        iconImg.color = Color.white; 
-        
-        // Quantity Text
+        iconRect.offsetMin = new Vector2(8, 25); // Padding for text below
+        iconRect.offsetMax = new Vector2(-8, -8);
+        iconObj.AddComponent<Image>();
+
+        // Quantity
         var qtyObj = new GameObject("Quantity");
-        qtyObj.transform.SetParent(slotObj.transform, false);
+        qtyObj.transform.SetParent(itemTemplate.transform, false);
         var qtyRect = qtyObj.AddComponent<RectTransform>();
-        qtyRect.anchorMin = new Vector2(0.5f, 0);
-        qtyRect.anchorMax = new Vector2(1, 0.4f);
-        qtyRect.pivot = new Vector2(1, 0);
-        qtyRect.offsetMin = new Vector2(0, 5);
-        qtyRect.offsetMax = new Vector2(-5, 0);
-        
+        qtyRect.anchorMin = new Vector2(0, 0); 
+        qtyRect.anchorMax = new Vector2(1, 0); // Bottom Stretch
+        qtyRect.pivot = new Vector2(0.5f, 0);
+        qtyRect.anchoredPosition = new Vector2(0, 2);
+        qtyRect.sizeDelta = new Vector2(0, 22);
         var qtyTxt = qtyObj.AddComponent<TextMeshProUGUI>();
-        qtyTxt.text = "1";
-        qtyTxt.alignment = TextAlignmentOptions.BottomRight;
-        qtyTxt.fontSize = 20;
+        qtyTxt.fontSize = 16;
+        qtyTxt.alignment = TextAlignmentOptions.Bottom;
         qtyTxt.color = Color.white;
-        qtyTxt.outlineWidth = 0.2f;
-        qtyTxt.outlineColor = Color.black;
+        if (font != null) qtyTxt.font = font;
+        // Wait, where is 'font' defined? It was defined later in my previous view.
+        // I need to make sure 'font' is defined before this or used later.
+        // In previous view: line 666 'var font = ...' was much earlier? No, wait. 
+        // In Step 296, 'var font' is at the END of the function essentially?
+        // Ah, 'var font = ...' is at line ~730 in Step 296 (adjusted).
+        // Let's assume 'font' is available or I load it again.
         
-        slotObj.SetActive(false);
-        script.itemTemplate = slotObj;
+        // Selected Border (Highlight)
+        var selObj = new GameObject("SelectedBorder");
+        selObj.transform.SetParent(itemTemplate.transform, false);
+        var selRect = selObj.AddComponent<RectTransform>();
+        SetFullStretch(selRect);
+        // Create Glow Border (Single Image)
+        // Check if texture exists, if not generate it
+        string glowPath = "Assets/Textures/UI/GlowFrame.png";
+        if (!File.Exists(glowPath))
+        {
+            GenerateGlowTexture(glowPath);
+            AssetDatabase.Refresh();
+        }
+        
+        var glowSprite = AssetDatabase.LoadAssetAtPath<Sprite>(glowPath);
+        
+        var selImg = selObj.AddComponent<Image>();
+        if (glowSprite != null)
+        {
+            selImg.sprite = glowSprite;
+            selImg.type = Image.Type.Sliced; 
+        }
+        else
+        {
+            selImg.color = new Color(1f, 1f, 0f, 0.5f); // Fallback color
+        }
+        
+        // Slightly larger than slot to show "Outer" glow
+        selRect.offsetMin = new Vector2(-5, -5);
+        selRect.offsetMax = new Vector2(5, 5);
+
+        script.itemTemplate = itemTemplate;
+        itemTemplate.SetActive(false);
+
         
         // Empty Text
         var emptyObj = new GameObject("EmptyText");
@@ -814,6 +856,68 @@ public class BossBattleUI_Gen
         string path = "Assets/Prefabs/Battle/InventoryPopup.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
         return root;
+    }
+
+    private static void GenerateGlowTexture(string path)
+    {
+        int size = 128; // Texture size
+        int border = 10; // Glow thickness from edge
+        float falloff = 2.5f; // Softness
+        
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color[] colors = new Color[size * size];
+        Color glowColor = new Color(1f, 0.9f, 0.2f, 1f); // Gold/Yellow
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                // Distance to nearest edge
+                int distL = x;
+                int distR = size - 1 - x;
+                int distB = y;
+                int distT = size - 1 - y;
+                
+                int minDist = Mathf.Min(distL, Mathf.Min(distR, Mathf.Min(distB, distT)));
+                
+                float alpha = 0f;
+                
+                if (minDist < border)
+                {
+                   // Normalized distance from 0 (edge) to 1 (inner border start)
+                   float t = (float)minDist / border; 
+                   // Reverse: 0 -> 1 (strong), 1 -> 0 (weak)
+                   // Use pow for falloff
+                   alpha = Mathf.Pow(1f - t, falloff);
+                }
+                
+                // Add stronger rim at very edge?
+                if (minDist < 2) alpha = Mathf.Max(alpha, 0.8f);
+
+                colors[y * size + x] = new Color(glowColor.r, glowColor.g, glowColor.b, alpha);
+            }
+        }
+        
+        texture.SetPixels(colors);
+        texture.Apply();
+        
+        // Ensure directory exists
+        string dir = Path.GetDirectoryName(path);
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        
+        byte[] bytes = texture.EncodeToPNG();
+        File.WriteAllBytes(path, bytes);
+        Debug.Log($"[BossBattleUI_Gen] Generated Glow Texture at {path}");
+        
+        // Import settings to ensure it's a Sprite
+        AssetDatabase.ImportAsset(path);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteBorder = new Vector4(border, border, border, border); // 9-slice cap
+            importer.SaveAndReimport();
+        }
     }
 
     // 5. LobbyView (Main)
