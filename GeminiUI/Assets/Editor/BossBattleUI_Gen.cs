@@ -43,10 +43,12 @@ public class BossBattleUI_Gen
             damagePopupObj = GenerateDamagePopup();
             var langPopupObj = GenerateLanguagePopup();
             var selectionUIObj = GenerateSelectionUI(); // Generate SelectionUI
+            var inventoryPopupObj = GenerateInventoryPopup(); // Generate InventoryPopup
             loginPopupObj = GenerateLoginPopup();
             
             if (langPopupObj) Object.DestroyImmediate(langPopupObj);
-            if (selectionUIObj) Object.DestroyImmediate(selectionUIObj); // Cleanup temp
+            if (selectionUIObj) Object.DestroyImmediate(selectionUIObj);
+            if (inventoryPopupObj) Object.DestroyImmediate(inventoryPopupObj); // Cleanup temp
 
             // Refresh to ensure LoadAssetAtPath finds them
             AssetDatabase.Refresh();
@@ -611,6 +613,209 @@ public class BossBattleUI_Gen
         return root;
     }
 
+    // 8. InventoryPopup
+    private static GameObject GenerateInventoryPopup()
+    {
+        GameObject root = new GameObject("InventoryPopup");
+        var rt = root.AddComponent<RectTransform>();
+        SetFullStretch(rt);
+        var script = root.AddComponent<InventoryPopup>();
+        
+        // Dim BG
+        root.AddComponent<Image>().color = new Color(0, 0, 0, 0.9f);
+        
+        // Panel (Resized for Details)
+        var panel = new GameObject("Panel");
+        panel.transform.SetParent(root.transform, false);
+        var panelRect = panel.AddComponent<RectTransform>();
+        panelRect.sizeDelta = new Vector2(600, 750); // Increased Height
+        panel.AddComponent<Image>().color = new Color(0.2f, 0.2f, 0.3f);
+        
+        // Title
+        var titleObj = new GameObject("Title");
+        titleObj.transform.SetParent(panel.transform, false);
+        var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
+        titleTxt.text = "My Inventory";
+        titleTxt.fontSize = 32;
+        titleTxt.color = Color.white;
+        titleTxt.alignment = TextAlignmentOptions.Center;
+        titleTxt.rectTransform.anchoredPosition = new Vector2(0, 340); // Moved Up
+        titleTxt.rectTransform.sizeDelta = new Vector2(300, 50);
+        
+        var locTitle = titleObj.AddComponent<LocalizedText>();
+        locTitle.SetKey("UI_Inventory_Title");
+
+        // Scroll View (Moved Up)
+        var svObj = new GameObject("ScrollView");
+        svObj.transform.SetParent(panel.transform, false);
+        var svRect = svObj.AddComponent<RectTransform>();
+        svRect.anchoredPosition = new Vector2(0, 80); // Center-ish top
+        svRect.sizeDelta = new Vector2(550, 420); // Slightly taller
+        
+        var scrollRect = svObj.AddComponent<ScrollRect>();
+        svObj.AddComponent<Image>().color = new Color(0,0,0,0.3f);
+        
+        var viewport = new GameObject("Viewport");
+        viewport.transform.SetParent(svObj.transform, false);
+        var vpRect = viewport.AddComponent<RectTransform>();
+        SetFullStretch(vpRect);
+        viewport.AddComponent<RectMask2D>();
+        scrollRect.viewport = vpRect;
+        
+        var content = new GameObject("Content");
+        content.transform.SetParent(viewport.transform, false);
+        var contentRect = content.AddComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0, 1);
+        contentRect.anchorMax = new Vector2(1, 1);
+        contentRect.pivot = new Vector2(0.5f, 1);
+        contentRect.sizeDelta = new Vector2(0, 0); 
+        
+        var glg = content.AddComponent<GridLayoutGroup>();
+        glg.cellSize = new Vector2(100, 100);
+        glg.spacing = new Vector2(10, 10);
+        glg.padding = new RectOffset(5, 0, 0, 0);
+        glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        glg.constraintCount = 5; // 5 Items per row
+        
+        content.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        
+        scrollRect.content = contentRect;
+        scrollRect.vertical = true;
+        scrollRect.horizontal = false;
+        script.content = contentRect;
+        
+        // Load Font
+        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/NotoSansKR-Regular SDF.asset");
+
+        // --- Detail Area ---
+        var detailPanel = new GameObject("DetailPanel");
+        detailPanel.transform.SetParent(panel.transform, false);
+        var detailRect = detailPanel.AddComponent<RectTransform>();
+        detailRect.anchoredPosition = new Vector2(0, -215); 
+        detailRect.sizeDelta = new Vector2(550, 150);
+        
+        // Border (Bright)
+        detailPanel.AddComponent<Image>().color = new Color(0.6f, 1f, 1f, 0.8f); // Cyan-ish bright border
+
+        // Background (Dark)
+        var detailBgObj = new GameObject("Background");
+        detailBgObj.transform.SetParent(detailPanel.transform, false);
+        var detailBgRect = detailBgObj.AddComponent<RectTransform>();
+        detailBgRect.anchorMin = Vector2.zero;
+        detailBgRect.anchorMax = Vector2.one;
+        detailBgRect.offsetMin = new Vector2(2, 2); // 2px Border
+        detailBgRect.offsetMax = new Vector2(-2, -2);
+        detailBgObj.AddComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Dark background
+
+        // Name Text
+        var nameObj = new GameObject("ItemName");
+        nameObj.transform.SetParent(detailPanel.transform, false);
+        var nameRect = nameObj.AddComponent<RectTransform>();
+        nameRect.anchoredPosition = new Vector2(0, 50); // Moved Up
+        nameRect.sizeDelta = new Vector2(500, 40);
+        var nameTxt = nameObj.AddComponent<TextMeshProUGUI>();
+        nameTxt.text = "Item Name";
+        nameTxt.fontSize = 26;
+        nameTxt.fontStyle = FontStyles.Bold;
+        nameTxt.color = Color.yellow;
+        nameTxt.alignment = TextAlignmentOptions.Center;
+        if (font != null) nameTxt.font = font;
+        script.nameText = nameTxt;
+
+        // Desc Text
+        var descObj = new GameObject("ItemDesc");
+        descObj.transform.SetParent(detailPanel.transform, false);
+        var descRect = descObj.AddComponent<RectTransform>();
+        descRect.anchoredPosition = new Vector2(0, -30); // Moved Down
+        descRect.sizeDelta = new Vector2(520, 90);
+        var descTxt = descObj.AddComponent<TextMeshProUGUI>();
+        descTxt.text = "Description goes here...";
+        descTxt.fontSize = 20;
+        descTxt.color = Color.white;
+        descTxt.alignment = TextAlignmentOptions.Top;
+        descTxt.enableWordWrapping = true;
+        if (font != null) descTxt.font = font;
+        script.descText = descTxt;
+
+        // Close Button (Moved Down)
+        var btnObj = new GameObject("CloseBtn");
+        btnObj.transform.SetParent(panel.transform, false);
+        var btnRect = btnObj.AddComponent<RectTransform>();
+        btnRect.anchoredPosition = new Vector2(0, -340);
+        btnRect.sizeDelta = new Vector2(150, 40);
+        btnObj.AddComponent<Image>().color = Color.red;
+        var btn = btnObj.AddComponent<Button>();
+        script.closeButton = btn;
+        
+        var btnTxtObj = new GameObject("Text");
+        btnTxtObj.transform.SetParent(btnObj.transform, false);
+        var btnTxt = btnTxtObj.AddComponent<TextMeshProUGUI>();
+        btnTxt.text = "Close";
+        btnTxt.alignment = TextAlignmentOptions.Center;
+        btnTxt.color = Color.white;
+        SetFullStretch(btnTxt.rectTransform);
+        var locBtn = btnTxtObj.AddComponent<LocalizedText>();
+        locBtn.SetKey("UI_Common_Close");
+        
+        // Item Template (Prefab for slot)
+        var slotObj = new GameObject("ItemSlot");
+        slotObj.transform.SetParent(content.transform, false);
+        
+        // Background
+        slotObj.AddComponent<Image>().color = new Color(1,1,1,0.1f);
+        
+        // Icon Image
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(slotObj.transform, false);
+        var iconRect = iconObj.AddComponent<RectTransform>();
+        iconRect.anchorMin = Vector2.zero;
+        iconRect.anchorMax = Vector2.one;
+        iconRect.offsetMin = new Vector2(10, 10); // Padding
+        iconRect.offsetMax = new Vector2(-10, -10);
+        var iconImg = iconObj.AddComponent<Image>();
+        iconImg.preserveAspect = true;
+        iconImg.color = Color.white; 
+        
+        // Quantity Text
+        var qtyObj = new GameObject("Quantity");
+        qtyObj.transform.SetParent(slotObj.transform, false);
+        var qtyRect = qtyObj.AddComponent<RectTransform>();
+        qtyRect.anchorMin = new Vector2(0.5f, 0);
+        qtyRect.anchorMax = new Vector2(1, 0.4f);
+        qtyRect.pivot = new Vector2(1, 0);
+        qtyRect.offsetMin = new Vector2(0, 5);
+        qtyRect.offsetMax = new Vector2(-5, 0);
+        
+        var qtyTxt = qtyObj.AddComponent<TextMeshProUGUI>();
+        qtyTxt.text = "1";
+        qtyTxt.alignment = TextAlignmentOptions.BottomRight;
+        qtyTxt.fontSize = 20;
+        qtyTxt.color = Color.white;
+        qtyTxt.outlineWidth = 0.2f;
+        qtyTxt.outlineColor = Color.black;
+        
+        slotObj.SetActive(false);
+        script.itemTemplate = slotObj;
+        
+        // Empty Text
+        var emptyObj = new GameObject("EmptyText");
+        emptyObj.transform.SetParent(panel.transform, false);
+        var emptyTxt = emptyObj.AddComponent<TextMeshProUGUI>();
+        emptyTxt.text = "No Items";
+        emptyTxt.fontSize = 24;
+        emptyTxt.alignment = TextAlignmentOptions.Center;
+        emptyTxt.color = Color.gray;
+        emptyTxt.rectTransform.anchoredPosition = Vector2.zero;
+        emptyTxt.rectTransform.sizeDelta = new Vector2(300, 50);
+        script.emptyText = emptyTxt;
+        
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
+        
+        string path = "Assets/Prefabs/Battle/InventoryPopup.prefab";
+        PrefabUtility.SaveAsPrefabAsset(root, path);
+        return root;
+    }
+
     // 5. LobbyView (Main)
     private static void GenerateLobbyView(GameObject itemPrefab, GameObject resPopup, GameObject dmgPopup, GameObject loginPopup, GameObject selectionPopup)
     {
@@ -791,11 +996,22 @@ public class BossBattleUI_Gen
         var loginScript = loginInstance.GetComponent<LoginPopup>();
         loginScript.selectionUI = selectScript; // Bind Login -> Selection
 
+        // 3. Inventory Popup (Instance)
+        var invInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Battle/InventoryPopup.prefab"));
+        invInstance.transform.SetParent(root.transform, false);
+        invInstance.SetActive(false);
+        
+        var invScript = invInstance.GetComponent<InventoryPopup>();
+        invScript.selectionUIObj = selectInstance; // Back to Selection
+        
+        selectScript.inventoryPopup = invScript; // Bind Selection -> Inventory
+        
         SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Battle/LobbyView.prefab");
         Object.DestroyImmediate(root);
         Object.DestroyImmediate(loginInstance);
         Object.DestroyImmediate(selectInstance);
+        Object.DestroyImmediate(invInstance);
     }
 }

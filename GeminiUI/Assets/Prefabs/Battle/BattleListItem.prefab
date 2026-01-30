@@ -417,7 +417,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: UI_Battle_Participate
+  m_text: Participate
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb09e40445c18d14e805f8c807e751c8, type: 2}
   m_sharedMaterial: {fileID: -9076102235500257933, guid: bb09e40445c18d14e805f8c807e751c8, type: 2}

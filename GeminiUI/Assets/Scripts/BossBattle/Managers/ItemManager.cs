@@ -135,4 +135,9 @@ public class ItemManager : MonoBehaviour
         return null;
 #endif
     }
+    public List<int> GetAllItemKeys()
+    {
+        EnsureInitialized();
+        return new List<int>(_itemDataMap.Keys);
+    }
 }

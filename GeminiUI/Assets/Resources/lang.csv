@@ -99,11 +99,15 @@ UI_Lobby_Gold,골드: {0},Gold: {0},ゴールド: {0}
 UI_Lobby_Refresh,새로고침,Refresh,更新
 UI_Lobby_CreateBattle,배틀 생성,Create Battle,バトル作成
 UI_Select_Inventory,내 소지품,My Inventory,所持品
+UI_Select_Battle,전투 참가,Battle,戦闘参加
 UI_Login_Language,언어 설정,Language,言語設定
 UI_Common_Close,닫기,Close,閉じる
 UI_Common_Back,뒤로,Back,戻る
 UI_Lang_KR,한국어,Korean,韓国語
 UI_Battle_Host,호스트: {0},Host: {0},ホスト: {0}
+UI_Battle_Participate,참가,Participate,参加
+UI_Battle_Attempts,도전 횟수,Attempts,挑戦回数
 UI_Battle_Victory,승리!,VICTORY!,勝利!
 UI_Battle_Defeat,패배...,DEFEAT...,敗北...
 UI_Battle_TimeLeft,{0}분 남음,{0}m Left,残り{0}分
+UI_Inventory_Title,내 소지품,My Inventory,所持品

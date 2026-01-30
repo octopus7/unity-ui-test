@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class SelectionUI : MonoBehaviour
 {
@@ -23,10 +24,44 @@ public class SelectionUI : MonoBehaviour
             battleBtn.onClick.AddListener(OnBattleClicked);
     }
 
+    public InventoryPopup inventoryPopup;
+
     void OnInventoryClicked()
     {
-        Debug.Log("Inventory feature coming soon!");
-        // TODO: Show Inventory UI
+        if (inventoryPopup != null)
+        {
+            // Ensure LobbyContainer is hidden
+            if (lobbyUI != null && lobbyUI.lobbyPanel != null)
+            {
+                lobbyUI.lobbyPanel.SetActive(false);
+            }
+
+            inventoryPopup.gameObject.SetActive(true);
+            // Generate random items for testing
+            var items = new List<InventoryPopup.InventoryEntry>();
+            var allKeys = ItemManager.Instance.GetAllItemKeys();
+            
+            if (allKeys.Count > 0)
+            {
+                int count = Random.Range(5, 20); // Random count between 5 and 20
+                for (int i = 0; i < count; i++)
+                {
+                    int randomKey = allKeys[Random.Range(0, allKeys.Count)];
+                    int randomQty = Random.Range(1, 21); // Random quantity 1-20
+                    
+                    items.Add(new InventoryPopup.InventoryEntry { itemId = randomKey, quantity = randomQty });
+                }
+            }
+            
+            inventoryPopup.Setup(items);
+            
+            // Hide Selection UI
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("Inventory feature coming soon! (Popup not assigned)");
+        }
     }
 
     void OnBattleClicked()

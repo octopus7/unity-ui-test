@@ -18,6 +18,7 @@ public class UserData
 {
     public string UserId;
     public int Gold;
+    public List<string> InventoryItems = new List<string>();
 }
 
 [Serializable]
