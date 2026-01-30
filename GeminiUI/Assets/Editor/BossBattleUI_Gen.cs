@@ -16,14 +16,14 @@ public class BossBattleUI_Gen
     public static void ForceGenerateAll()
     {
         // Reset flag to force regeneration
-        SessionState.SetBool("BossBattleUI_Gen_Done_V2", false);
+        SessionState.SetBool("BossBattleUI_Gen_Done_V7", false);
         GenerateAll();
     }
 
     private static void GenerateAll()
     {
-        if (SessionState.GetBool("BossBattleUI_Gen_Done_V2", false)) return;
-        SessionState.SetBool("BossBattleUI_Gen_Done_V2", true);
+        if (SessionState.GetBool("BossBattleUI_Gen_Done_V7", false)) return;
+        SessionState.SetBool("BossBattleUI_Gen_Done_V7", true);
 
         if (!Directory.Exists("Assets/Prefabs/Battle"))
         {
@@ -41,7 +41,10 @@ public class BossBattleUI_Gen
             itemPrefabObj = GenerateBattleListItem();
             resultPopupObj = GenerateResultPopup();
             damagePopupObj = GenerateDamagePopup();
+            var langPopupObj = GenerateLanguagePopup(); // New
             loginPopupObj = GenerateLoginPopup();
+            
+            if (langPopupObj) Object.DestroyImmediate(langPopupObj); // Cleanup temp
 
             // Refresh to ensure LoadAssetAtPath finds them
             AssetDatabase.Refresh();
@@ -404,10 +407,151 @@ public class BossBattleUI_Gen
         btnTxt.fontSize = 24;
         btnTxt.alignment = TextAlignmentOptions.Center;
         SetFullStretch(btnTxt.rectTransform);
+        
+        // LocalizedText
+        var loc = btnTxtObj.AddComponent<LocalizedText>();
+        loc.SetKey("UI_Login_GameStart");
+
+        // Language Button (Bottom Right)
+        var langBtnObj = new GameObject("LanguageBtn");
+        langBtnObj.transform.SetParent(root.transform, false);
+        var langBtnRect = langBtnObj.AddComponent<RectTransform>();
+        langBtnRect.anchorMin = new Vector2(1, 0);
+        langBtnRect.anchorMax = new Vector2(1, 0);
+        langBtnRect.pivot = new Vector2(1, 0);
+        langBtnRect.anchoredPosition = new Vector2(-20, 20);
+        langBtnRect.sizeDelta = new Vector2(100, 40);
+        
+        var langBtnImg = langBtnObj.AddComponent<Image>();
+        langBtnImg.color = Color.cyan;
+        var langBtn = langBtnObj.AddComponent<Button>();
+        
+        var langTxtObj = new GameObject("Text");
+        langTxtObj.transform.SetParent(langBtnObj.transform, false);
+        var langTxt = langTxtObj.AddComponent<TextMeshProUGUI>();
+        langTxt.text = "Language";
+        langTxt.fontSize = 18;
+        langTxt.color = Color.black;
+        langTxt.alignment = TextAlignmentOptions.Center;
+        SetFullStretch(langTxt.rectTransform);
+        
+        // LocalizedText
+        var locLang = langTxtObj.AddComponent<LocalizedText>();
+        locLang.SetKey("UI_Login_Language");
+        
+        script.languageBtn = langBtn;
+
+        // TEST: CJK Character Check (Bottom Left)
+        var testCharObj = new GameObject("TestChar_CJK");
+        testCharObj.transform.SetParent(root.transform, false);
+        var testCharTxt = testCharObj.AddComponent<TextMeshProUGUI>();
+        testCharTxt.text = "國"; // Hanja/Kanji for Country
+        testCharTxt.fontSize = 60;
+        testCharTxt.color = Color.white;
+        testCharTxt.alignment = TextAlignmentOptions.Center;
+
+        // Add LocalizedText for Font Switching (No Key=No Text Change)
+        testCharObj.AddComponent<LocalizedText>();
+        
+        var testCharRect = testCharObj.GetComponent<RectTransform>();
+        testCharRect.anchorMin = new Vector2(0, 0);
+        testCharRect.anchorMax = new Vector2(0, 0);
+        testCharRect.pivot = new Vector2(0, 0);
+        testCharRect.anchoredPosition = new Vector2(20, 20); // Bottom Left
+        testCharRect.sizeDelta = new Vector2(100, 100);
+
+        // Language Popup (Instance)
+        var langPopupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Battle/LanguagePopup.prefab");
+        if (langPopupPrefab != null)
+        {
+            var langPopupObj = (GameObject)PrefabUtility.InstantiatePrefab(langPopupPrefab);
+            langPopupObj.transform.SetParent(root.transform, false);
+            langPopupObj.SetActive(false); // Hidden by default
+            script.languagePopup = langPopupObj.GetComponent<LanguagePopup>();
+        }
+        else
+        {
+            Debug.LogError("LanguagePopup prefab not found!");
+        }
 
         SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
 
         string path = "Assets/Prefabs/Battle/LoginPopup.prefab";
+        PrefabUtility.SaveAsPrefabAsset(root, path);
+        return root;
+    }
+
+    // 6. LanguagePopup
+    private static GameObject GenerateLanguagePopup()
+    {
+        GameObject root = new GameObject("LanguagePopup");
+        var rt = root.AddComponent<RectTransform>();
+        SetFullStretch(rt);
+        var script = root.AddComponent<LanguagePopup>();
+        
+        // Dim BG
+        var bg = root.AddComponent<Image>();
+        bg.color = new Color(0, 0, 0, 0.8f);
+        
+        // Panel
+        var panel = new GameObject("Panel");
+        panel.transform.SetParent(root.transform, false);
+        var panelRect = panel.AddComponent<RectTransform>();
+        panelRect.sizeDelta = new Vector2(400, 300);
+        panel.AddComponent<Image>().color = Color.white;
+        
+        var vlg = panel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 20;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+        vlg.childControlHeight = false;
+        vlg.childControlWidth = false;
+        
+        // Helper to create buttons (Static Text)
+        Button CreateLangBtn(string name, string label)
+        {
+            var bObj = new GameObject(name);
+            bObj.transform.SetParent(panel.transform, false);
+            var bRect = bObj.AddComponent<RectTransform>();
+            bRect.sizeDelta = new Vector2(200, 50);
+            bObj.AddComponent<Image>().color = Color.gray;
+            var b = bObj.AddComponent<Button>();
+            
+            var tObj = new GameObject("Text");
+            tObj.transform.SetParent(bObj.transform, false);
+            var t = tObj.AddComponent<TextMeshProUGUI>();
+            t.text = label;
+            t.color = Color.black;
+            t.fontSize = 24;
+            t.alignment = TextAlignmentOptions.Center;
+            SetFullStretch(t.rectTransform);
+            
+            return b;
+        }
+
+        // Helper for Localized Button (Close)
+        Button CreateLocBtn(string name, string label, string key)
+        {
+            var b = CreateLangBtn(name, label);
+            // Add LocalizedText to the text object (child 0)
+            var tObj = b.transform.GetChild(0).gameObject;
+            var loc = tObj.AddComponent<LocalizedText>();
+            loc.SetKey(key);
+            return b;
+        }
+        
+        script.koreanBtn = CreateLangBtn("KR_Btn", "한국어");
+        script.englishBtn = CreateLangBtn("EN_Btn", "English");
+        script.japaneseBtn = CreateLangBtn("JP_Btn", "日本語");
+        
+        // Close Button (Localized)
+        var closeBtn = CreateLocBtn("CloseBtn", "Close", "UI_Common_Close");
+        var cImg = closeBtn.GetComponent<Image>();
+        cImg.color = Color.red;
+        script.closeBtn = closeBtn;
+
+        SetLayerRecursively(root, LayerMask.NameToLayer("UI"));
+
+        string path = "Assets/Prefabs/Battle/LanguagePopup.prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);
         return root;
     }

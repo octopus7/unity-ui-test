@@ -1,0 +1,386 @@
+[
+    {
+        "ItemID": 10001,
+        "NameKey": "Item_Name_BananaBunch",
+        "DescKey": "Item_Desc_BananaBunch",
+        "Icon": "BananaBunch",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20001,
+        "NameKey": "Item_Name_BlueCrystal",
+        "DescKey": "Item_Desc_BlueCrystal",
+        "Icon": "BlueCrystal",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10002,
+        "NameKey": "Item_Name_BluePotion",
+        "DescKey": "Item_Desc_BluePotion",
+        "Icon": "BluePotion",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 30001,
+        "NameKey": "Item_Name_Boots",
+        "DescKey": "Item_Desc_Boots",
+        "Icon": "Boots",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 10003,
+        "NameKey": "Item_Name_BreadLoaf",
+        "DescKey": "Item_Desc_BreadLoaf",
+        "Icon": "BreadLoaf",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10004,
+        "NameKey": "Item_Name_CheeseWheel",
+        "DescKey": "Item_Desc_CheeseWheel",
+        "Icon": "CheeseWheel",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10005,
+        "NameKey": "Item_Name_ChocolateBar",
+        "DescKey": "Item_Desc_ChocolateBar",
+        "Icon": "ChocolateBar",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20002,
+        "NameKey": "Item_Name_CopperIngot",
+        "DescKey": "Item_Desc_CopperIngot",
+        "Icon": "CopperIngot",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 30002,
+        "NameKey": "Item_Name_Dagger",
+        "DescKey": "Item_Desc_Dagger",
+        "Icon": "Dagger",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 20003,
+        "NameKey": "Item_Name_Emerald",
+        "DescKey": "Item_Desc_Emerald",
+        "Icon": "Emerald",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10006,
+        "NameKey": "Item_Name_FishPlatter",
+        "DescKey": "Item_Desc_FishPlatter",
+        "Icon": "FishPlatter",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10007,
+        "NameKey": "Item_Name_FriedEgg",
+        "DescKey": "Item_Desc_FriedEgg",
+        "Icon": "FriedEgg",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10008,
+        "NameKey": "Item_Name_FrostedDonut",
+        "DescKey": "Item_Desc_FrostedDonut",
+        "Icon": "FrostedDonut",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 40001,
+        "NameKey": "Item_Name_GoldCoin",
+        "DescKey": "Item_Desc_GoldCoin",
+        "Icon": "GoldCoin",
+        "Category": 4,
+        "Price": 500
+    },
+    {
+        "ItemID": 20004,
+        "NameKey": "Item_Name_GoldNugget",
+        "DescKey": "Item_Desc_GoldNugget",
+        "Icon": "GoldNugget",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10009,
+        "NameKey": "Item_Name_GreenPear",
+        "DescKey": "Item_Desc_GreenPear",
+        "Icon": "GreenPear",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10010,
+        "NameKey": "Item_Name_GreenPotion",
+        "DescKey": "Item_Desc_GreenPotion",
+        "Icon": "GreenPotion",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10011,
+        "NameKey": "Item_Name_HotSoup",
+        "DescKey": "Item_Desc_HotSoup",
+        "Icon": "HotSoup",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20005,
+        "NameKey": "Item_Name_IronOre",
+        "DescKey": "Item_Desc_IronOre",
+        "Icon": "IronOre",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 30003,
+        "NameKey": "Item_Name_IronShield",
+        "DescKey": "Item_Desc_IronShield",
+        "Icon": "IronShield",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 30004,
+        "NameKey": "Item_Name_IronSword",
+        "DescKey": "Item_Desc_IronSword",
+        "Icon": "IronSword",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 20006,
+        "NameKey": "Item_Name_LeatherHelmet",
+        "DescKey": "Item_Desc_LeatherHelmet",
+        "Icon": "LeatherHelmet",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10012,
+        "NameKey": "Item_Name_LeatherPiece",
+        "DescKey": "Item_Desc_LeatherPiece",
+        "Icon": "LeatherPiece",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20007,
+        "NameKey": "Item_Name_MagicDust",
+        "DescKey": "Item_Desc_MagicDust",
+        "Icon": "MagicDust",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 30005,
+        "NameKey": "Item_Name_MagicStaff",
+        "DescKey": "Item_Desc_MagicStaff",
+        "Icon": "MagicStaff",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 20008,
+        "NameKey": "Item_Name_MoonRock",
+        "DescKey": "Item_Desc_MoonRock",
+        "Icon": "MoonRock",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 40002,
+        "NameKey": "Item_Name_MysteriousBook",
+        "DescKey": "Item_Desc_MysteriousBook",
+        "Icon": "MysteriousBook",
+        "Category": 4,
+        "Price": 500
+    },
+    {
+        "ItemID": 40003,
+        "NameKey": "Item_Name_OldKey",
+        "DescKey": "Item_Desc_OldKey",
+        "Icon": "OldKey",
+        "Category": 4,
+        "Price": 500
+    },
+    {
+        "ItemID": 10013,
+        "NameKey": "Item_Name_Pearl",
+        "DescKey": "Item_Desc_Pearl",
+        "Icon": "Pearl",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20009,
+        "NameKey": "Item_Name_PinkGem",
+        "DescKey": "Item_Desc_PinkGem",
+        "Icon": "PinkGem",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10014,
+        "NameKey": "Item_Name_PurpleElixir",
+        "DescKey": "Item_Desc_PurpleElixir",
+        "Icon": "PurpleElixir",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10015,
+        "NameKey": "Item_Name_PurpleGrapes",
+        "DescKey": "Item_Desc_PurpleGrapes",
+        "Icon": "PurpleGrapes",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10016,
+        "NameKey": "Item_Name_RedApple",
+        "DescKey": "Item_Desc_RedApple",
+        "Icon": "RedApple",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10017,
+        "NameKey": "Item_Name_RedPotion",
+        "DescKey": "Item_Desc_RedPotion",
+        "Icon": "RedPotion",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10018,
+        "NameKey": "Item_Name_RoastChicken",
+        "DescKey": "Item_Desc_RoastChicken",
+        "Icon": "RoastChicken",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20010,
+        "NameKey": "Item_Name_Ruby",
+        "DescKey": "Item_Desc_Ruby",
+        "Icon": "Ruby",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10019,
+        "NameKey": "Item_Name_Sandwich",
+        "DescKey": "Item_Desc_Sandwich",
+        "Icon": "Sandwich",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20011,
+        "NameKey": "Item_Name_StarShard",
+        "DescKey": "Item_Desc_StarShard",
+        "Icon": "StarShard",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10020,
+        "NameKey": "Item_Name_SteakMeat",
+        "DescKey": "Item_Desc_SteakMeat",
+        "Icon": "SteakMeat",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 20012,
+        "NameKey": "Item_Name_SteelBar",
+        "DescKey": "Item_Desc_SteelBar",
+        "Icon": "SteelBar",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 20013,
+        "NameKey": "Item_Name_StoneBlock",
+        "DescKey": "Item_Desc_StoneBlock",
+        "Icon": "StoneBlock",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 10021,
+        "NameKey": "Item_Name_StrawberryPie",
+        "DescKey": "Item_Desc_StrawberryPie",
+        "Icon": "StrawberryPie",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 10022,
+        "NameKey": "Item_Name_SweetCake",
+        "DescKey": "Item_Desc_SweetCake",
+        "Icon": "SweetCake",
+        "Category": 1,
+        "Price": 50
+    },
+    {
+        "ItemID": 40004,
+        "NameKey": "Item_Name_TreasureMap",
+        "DescKey": "Item_Desc_TreasureMap",
+        "Icon": "TreasureMap",
+        "Category": 4,
+        "Price": 500
+    },
+    {
+        "ItemID": 30006,
+        "NameKey": "Item_Name_WizardHat",
+        "DescKey": "Item_Desc_WizardHat",
+        "Icon": "WizardHat",
+        "Category": 3,
+        "Price": 1000
+    },
+    {
+        "ItemID": 20014,
+        "NameKey": "Item_Name_WoodenBow",
+        "DescKey": "Item_Desc_WoodenBow",
+        "Icon": "WoodenBow",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 20015,
+        "NameKey": "Item_Name_WoodenLog",
+        "DescKey": "Item_Desc_WoodenLog",
+        "Icon": "WoodenLog",
+        "Category": 2,
+        "Price": 150
+    },
+    {
+        "ItemID": 20016,
+        "NameKey": "Item_Name_WoolBall",
+        "DescKey": "Item_Desc_WoolBall",
+        "Icon": "WoolBall",
+        "Category": 2,
+        "Price": 150
+    }
+]

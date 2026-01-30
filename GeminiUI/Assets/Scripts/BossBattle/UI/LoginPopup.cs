@@ -11,6 +11,10 @@ public class LoginPopup : MonoBehaviour
 
     public LobbyUI lobbyUI; // Reference to Lobby to switch
     
+    [Header("Language Settings")]
+    public Button languageBtn;
+    public LanguagePopup languagePopup;
+
     void Start()
     {
         // Load saved ID
@@ -18,6 +22,22 @@ public class LoginPopup : MonoBehaviour
         userIdInput.text = savedId;
 
         startButton.onClick.AddListener(OnStartClicked);
+        
+        if (languageBtn != null)
+        {
+            languageBtn.onClick.AddListener(OnLanguageClicked);
+        }
+        
+        // Ensure Managers are initialized (Lazy load checks)
+        // LocalizationManager.Instance.Load(); // Optional, usage will trigger it
+    }
+
+    void OnLanguageClicked()
+    {
+        if (languagePopup != null)
+        {
+            languagePopup.gameObject.SetActive(true);
+        }
     }
 
     async void OnStartClicked()
@@ -36,6 +56,9 @@ public class LoginPopup : MonoBehaviour
             PlayerPrefs.Save();
 
             Debug.Log($"Logged in as {user.UserId} with {user.Gold} Gold");
+
+            // Load Content Localization (Phase 2)
+            LocalizationManager.Instance.LoadContent();
 
             // Close Login, Open Lobby
             gameObject.SetActive(false);
